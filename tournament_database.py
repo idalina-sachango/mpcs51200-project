@@ -2,14 +2,14 @@ from datetime import datetime, timedelta
 from util import get_conn_curs, commit_close
 
 # Constants
-DB_FILENAME = "tounaments.db"
+DB_FILENAME = "tournaments.db"
 
 # Creates the tournaments-related tables in the database.
 # *** Basic Tables ***
 # Tournaments table:
 # id: int, automatically increments on insert
 # name: string, common name of tournament
-# eligible_gender: string, ('M', 'F', or 'Co-ed')
+# eligible_gender: string, ('m', 'f', or 'co-ed')
 # eligible_age_min: int, minimum eligible age for tournament
 # eligible_age_max: int, maximum eligible age for tournament
 # start_date: datetime, starting date and time of the tournament
@@ -18,14 +18,14 @@ DB_FILENAME = "tounaments.db"
 # Teams table:
 # id: int, automatically increments on insert
 # name: string, common name of team
-# team_gender: string, ('M', 'F', or 'Co-ed')
+# team_gender: string, ('m', 'f', or 'co-ed')
 # team_age_min: int, minimum age of player on team
 # team_age_max: int, maximum age of player on team
 #
 # Players table:
 # id: int, automatically increments on insert
 # name: string, player's name
-# gender: string, ('M', 'F', or 'Other')
+# gender: string, ('m', 'f', or 'other')
 # age: int, player's age
 #
 # Games table:
@@ -107,16 +107,22 @@ def create_relational_tables():
 
     commit_close(conn, curs)
 
-# Creates a fake tournament for testing
-def insert_example_tournament():
+# Creates a tournament
+def insert_tournament(name: str, eligible_gender: str, eligible_age_min: int, 
+        eligible_age_max: int, start_date: datetime, end_date: datetime):
     conn, curs = get_conn_curs(DB_FILENAME)
 
-    name = "UChicago Tournament"
-    eligible_gender = "Co-ed"
-    eligible_age_min = 18
-    eligible_age_max = 24
-    start_date = datetime.now()
-    end_date = datetime.now() + timedelta(days=2)
+    # Ensures that each input is of the correct type, throws an AssertionError
+    # with the provided message if not
+    assert(isinstance(name, str)), "name must be a string"
+    assert(isinstance(eligible_gender, str)), ("eligible_gender must be a " +
+        "string")
+    assert(isinstance(eligible_age_min, int)), ("eligible_age_min must be an " +
+        "int")
+    assert(isinstance(eligible_age_max, int)), ("eligible_age_max must be an " +
+        "int")
+    assert(isinstance(start_date, datetime)), "start_date must be a datetime"
+    assert(isinstance(end_date, datetime)), "end_date must be a datetime"
 
     tournament_insert = ("INSERT INTO Tournaments (name, eligible_gender, " +
         "eligible_age_min, eligible_age_max, start_date, end_date) VALUES " +
@@ -128,14 +134,17 @@ def insert_example_tournament():
 
     commit_close(conn, curs)
 
-# Creates a fake team for testing
-def insert_example_team():
+# Creates a team
+def insert_team(name: str, team_gender: str, team_age_min: int,
+        team_age_max: int):
     conn, curs = get_conn_curs(DB_FILENAME)
 
-    name = "UChicago Team"
-    team_gender = "Co-Ed"
-    team_age_min = 18
-    team_age_max = 24
+    # Ensures that each input is of the correct type, throws an AssertionError
+    # with the provided message if not
+    assert(isinstance(name, str)), "name must be a string"
+    assert(isinstance(team_gender, str)), "team_gender must be a string"
+    assert(isinstance(team_age_min, int)), "team_age_min must be an int"
+    assert(isinstance(team_age_max, int)), "team_age_max must be an int"
 
     team_insert = ("INSERT INTO Teams (name, team_gender, " +
         "team_age_min, team_age_max) VALUES (?,?,?,?)")
@@ -145,13 +154,22 @@ def insert_example_team():
 
     commit_close(conn, curs)
 
-# Creates a fake game for testing
-def insert_example_game():
+# Creates a game
+def insert_game(time: datetime, home_team: int = None, 
+        away_team: int = None):
     conn, curs = get_conn_curs(DB_FILENAME)
+
+    # Ensures that each input is of the correct type, throws an AssertionError
+    # with the provided message if not
+    assert(isinstance(time, datetime)), "time must be a datetime"
+    assert(isinstance(home_team, int) or home_team is None), ("home_team " +
+        "must be an int or None")
+    assert(isinstance(away_team, int) or away_team is None), ("away_team " +
+        "must be an int or None")
 
     game_insert = ("INSERT INTO GAMES (home_team, away_team, time) VALUES " +
         "(?,?,?)")
-    game_data = (1, 2, datetime.now())
+    game_data = (home_team, away_team, time)
 
     curs.execute(game_insert, game_data)
 
@@ -184,14 +202,16 @@ if __name__ == "__main__":
     create_basic_tables()
     create_relational_tables()
     print("Table created")
-    print("Inserting 2 example tournments (same metadata)")
-    insert_example_tournament()
-    insert_example_tournament()
+    print("Inserting 2 example tournments")
+    insert_tournament("UChicago Tournament", "co-ed", 18, 24, datetime.now(),
+        datetime.now() + timedelta(days=2))
+    insert_tournament("U12 Tournament", "f", 10, 12, datetime.now(),
+        datetime.now() + timedelta(days=2))
     print("Example tournaments inserted")
-    insert_example_team()
-    insert_example_team()
-    print("Example team inserted")
-    insert_example_game()
+    insert_team("UChicago", "co-ed", 18, 24)
+    insert_team("Local School", "f", 10, 12)
+    print("Example teams inserted")
+    insert_game(datetime.now() + timedelta(days=1), None, 2)
     print("Example game inserted")
     # print_current_tournaments()
     # print("Deleting first tournament")

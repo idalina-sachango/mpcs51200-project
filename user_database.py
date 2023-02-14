@@ -1,4 +1,3 @@
-import sqlite3
 from util import get_conn_curs, commit_close
 
 # Constants
