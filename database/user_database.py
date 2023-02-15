@@ -55,19 +55,23 @@ def insert_intial_users():
 
 # Gets the current users in the database
 # Return format is dictionary where key is username (string) and value is 
-# another dictionary with name, password, and user_type as strings
+# another dictionary with user_id, name, username, password, and user_type.
 # As an example, the return might look like:
 # {
 #     'tm123': {
-#         'name': 'Tim Manager',
-#         'password': 'password',
+#         'user_id': 1, 
+#         'name': 'Tim Manager', 
+#         'username': 'tm123', 
+#         'password': 'password', 
 #         'user_type': 'TournamentManager'
-#     },
+#     }, 
 #     'originalcoach': {
-#         'name': 'CoachCoach', 
+#         'user_id': 2, 
+#         'name': 'Coach Coach', 
+#         'username': 'originalcoach', 
 #         'password': 'password', 
 #         'user_type': 'TeamManager'
-#     },
+#     }
 # }
 def get_all_users():
     conn, curs = get_conn_curs(DB_FILENAME)
@@ -78,8 +82,8 @@ def get_all_users():
     users = {}
 
     for row in rows:
-        user_info = {"name": row[1], "password": row[3], "user_type": row[4]}
-        users[row[2]] = user_info
+        user_id = row[0]
+        users[row[2]] = get_user_by_id(user_id)
 
     commit_close(conn, curs)
 
@@ -98,9 +102,10 @@ def get_user_by_id(user_id: int):
 
     user = {
         "user_id": user_info[0],
-        "username": user_info[1],
-        "password": user_info[2],
-        "type": user_info[3]
+        "name": user_info[1],
+        "username": user_info[2],
+        "password": user_info[3],
+        "user_type": user_info[4]
     }
 
     commit_close(conn, curs)

@@ -205,7 +205,7 @@ def create_player(name: str, gender: str, age: int, team_id: int):
     # Ensures that each input is of the correct type, throws an AssertionError
     # with the provided message if not
     assert(isinstance(name, str)), "name must be a string"
-    assert(isinstance(gender, int)), "gender must be a string"
+    assert(isinstance(gender, str)), "gender must be a string"
     assert(isinstance(age, int)), "age must be an int"
     assert(isinstance(team_id, int)), "team_id must be an int"
 
