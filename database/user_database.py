@@ -4,6 +4,10 @@ import csv
 # Constants
 DB_FILENAME = "users.db"
 
+###############################################################################
+# CREATE
+###############################################################################
+
 # Creates the users table in the database
 def create_users_table():
     conn, curs = get_conn_curs(DB_FILENAME)
@@ -45,6 +49,10 @@ def insert_intial_users():
 
     commit_close(conn, curs)
 
+###############################################################################
+# READ
+###############################################################################
+
 # Gets the current users in the database
 # Return format is dictionary where key is username (string) and value is 
 # another dictionary with name, password, and user_type as strings
@@ -61,7 +69,7 @@ def insert_intial_users():
 #         'user_type': 'TeamManager'
 #     },
 # }
-def get_current_users():
+def get_all_users():
     conn, curs = get_conn_curs(DB_FILENAME)
 
     curs.execute("SELECT * FROM Users")
@@ -70,12 +78,42 @@ def get_current_users():
     users = {}
 
     for row in rows:
-        entry_information = {"name": row[1], "password": row[3], "user_type": row[4]}
-        users[row[2]] = entry_information
+        user_info = {"name": row[1], "password": row[3], "user_type": row[4]}
+        users[row[2]] = user_info
 
     commit_close(conn, curs)
 
     return users
+
+def get_user_by_id(user_id: int):
+    conn, curs = get_conn_curs(DB_FILENAME)
+
+    curs.execute("SELECT * FROM Users WHERE id = ?", [user_id])
+    rows = curs.fetchall()
+
+    if len(rows) < 1:
+        raise Exception("User does not exist")
+
+    user_info = rows[0]
+
+    user = {
+        "user_id": user_info[0],
+        "username": user_info[1],
+        "password": user_info[2],
+        "type": user_info[3]
+    }
+
+    commit_close(conn, curs)
+
+    return user
+
+###############################################################################
+# UPDATE
+###############################################################################
+
+###############################################################################
+# DELETE
+###############################################################################
 
 # Deletes the user with the given ID from the database
 def delete_user(user_id: int):
@@ -84,6 +122,10 @@ def delete_user(user_id: int):
     curs.execute("DELETE FROM Users WHERE id = {}".format(user_id))
 
     commit_close(conn, curs)
+
+###############################################################################
+# SETUP
+###############################################################################
 
 def setup_user_database():
     create_users_table()
@@ -97,7 +139,7 @@ if __name__ == "__main__":
     print("Inserting 2 initial users")
     insert_intial_users()
     print("Initial users inserted")
-    print(get_current_users())
+    print(get_all_users())
     # print("Deleting first user")
     # delete_user(1)
     # print("First user deleted")

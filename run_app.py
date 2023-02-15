@@ -1,6 +1,7 @@
-from database.user_database import setup_user_database, get_current_users
-from database.tournament_database import setup_tournament_database
+from database.user_database import setup_user_database, get_all_users
+from database.tournament_database import setup_tournament_database, create_tournament, register_team_in_tournament, create_team, create_game, get_all_tournaments, get_all_teams
 from backend.users import log_in
+from datetime import datetime, timedelta
 
 # Constants
 LOG_IN_MENU = '''
@@ -24,16 +25,28 @@ def control_loop():
             if not user_type:
                 message = "\nLog in failed.\n" + LOG_IN_MENU
             else:
-                message = f"You are logged in as a(n) {user_type}"
+                message = f"You are logged in as type: {user_type}"
                 is_logged_in = True
         else:
-            message = f"You are logged in as a(n) {user_type}"
+            message = f"You are logged in as type: {user_type}"
 
         command = input(message)
     print("Goodbye")
 
 if __name__ == "__main__":
     setup_user_database()
+    setup_tournament_database()
+    # create_tournament("UChicago Tournament", "co-ed", 18, 24, datetime.now(),
+    #     datetime.now() + timedelta(days=2))
+    # create_tournament("UChicago Tournament", "co-ed", 18, 24, datetime.now(),
+    #     datetime.now() + timedelta(days=2))
+    # create_tournament("UChicago Tournament", "co-ed", 18, 24, datetime.now(),
+    #     datetime.now() + timedelta(days=2))
+    # create_team("UChicago", "co-ed", 18, 24, 2)
+    # register_team_in_tournament(1, 1)
+    # print(get_all_tournaments())
+    # print(get_all_teams())
+    # create_game(datetime.now() + timedelta(days=1), 1)
     control_loop()
 
 

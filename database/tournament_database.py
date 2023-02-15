@@ -1,8 +1,13 @@
 from datetime import datetime, timedelta
 from util.util import get_conn_curs, commit_close
+from database.user_database import get_user_by_id
 
 # Constants
 DB_FILENAME = "tournaments.db"
+
+###############################################################################
+# CREATE
+###############################################################################
 
 # Creates the tournaments-related tables in the database.
 # *** Basic Tables ***
@@ -21,6 +26,7 @@ DB_FILENAME = "tournaments.db"
 # team_gender: string, ('m', 'f', or 'co-ed')
 # team_age_min: int, minimum age of player on team
 # team_age_max: int, maximum age of player on team
+# team_manager: int, ID of user who created team
 #
 # Players table:
 # id: int, automatically increments on insert
@@ -43,7 +49,8 @@ def create_basic_tables():
     
     teams_create = ("CREATE TABLE if not exists Teams " +
         "(id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(250), " +
-        "team_gender VARCHAR(5), team_age_min INT, team_age_max INT)")
+        "team_gender VARCHAR(5), team_age_min INT, team_age_max INT, " +
+        "team_manager INT)")
 
     players_create = ("CREATE TABLE if not exists Players " +
         "(id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(250), " +
@@ -56,10 +63,13 @@ def create_basic_tables():
         "FOREIGN KEY(away_team) REFERENCES Teams(id))")
 
     # Remove these lines for data persistence, but they are good for testing
-    curs.execute("DROP TABLE if exists Tournaments")
+    curs.execute("DROP TABLE if exists TournamentRegistrations")
+    curs.execute("DROP TABLE if exists PlayersOnTeams")
+    curs.execute("DROP TABLE if exists GamesInTournaments")
+    curs.execute("DROP TABLE if exists Players")
     curs.execute("DROP TABLE if exists Games")
     curs.execute("DROP TABLE if exists Teams")
-    curs.execute("DROP TABLE if exists Players")
+    curs.execute("DROP TABLE if exists Tournaments")
 
     # Execute the statements
     statements = [tournaments_create, teams_create, players_create, 
@@ -108,7 +118,7 @@ def create_relational_tables():
     commit_close(conn, curs)
 
 # Creates a tournament
-def insert_tournament(name: str, eligible_gender: str, eligible_age_min: int, 
+def create_tournament(name: str, eligible_gender: str, eligible_age_min: int, 
         eligible_age_max: int, start_date: datetime, end_date: datetime):
     conn, curs = get_conn_curs(DB_FILENAME)
 
@@ -134,9 +144,40 @@ def insert_tournament(name: str, eligible_gender: str, eligible_age_min: int,
 
     commit_close(conn, curs)
 
-# Creates a team
-def insert_team(name: str, team_gender: str, team_age_min: int,
-        team_age_max: int):
+# Creates a game in Games table and connects it to an existing tournament in
+# GamesInTournaments table
+# Potentially raises sqlite errors, they must be caught by calling function
+def create_game(time: datetime, tournament_id: int, home_team: int = None, 
+        away_team: int = None):
+    conn, curs = get_conn_curs(DB_FILENAME)
+
+    # Ensures that each input is of the correct type, throws an AssertionError
+    # with the provided message if not
+    assert(isinstance(time, datetime)), "time must be a datetime"
+    assert(isinstance(tournament_id, int)), "tournament_id must be an int"
+    assert(isinstance(home_team, int) or home_team is None), ("home_team " +
+        "must be an int or None")
+    assert(isinstance(away_team, int) or away_team is None), ("away_team " +
+        "must be an int or None")
+
+    game_insert = ("INSERT INTO Games (home_team, away_team, time) VALUES " +
+        "(?,?,?)")
+    game_data = (home_team, away_team, time)
+
+    curs.execute(game_insert, game_data)
+    game_id = curs.lastrowid
+
+    game_tournament_insert = ("INSERT INTO GamesInTournaments " +
+        "(tournament_id, game_id) VALUES (?,?)")
+    game_tournament_data = (tournament_id, game_id)
+
+    curs.execute(game_tournament_insert, game_tournament_data)
+
+    commit_close(conn, curs)
+
+# Creates a team in Teams table
+def create_team(name: str, team_gender: str, team_age_min: int,
+        team_age_max: int, team_manager: int):
     conn, curs = get_conn_curs(DB_FILENAME)
 
     # Ensures that each input is of the correct type, throws an AssertionError
@@ -145,48 +186,210 @@ def insert_team(name: str, team_gender: str, team_age_min: int,
     assert(isinstance(team_gender, str)), "team_gender must be a string"
     assert(isinstance(team_age_min, int)), "team_age_min must be an int"
     assert(isinstance(team_age_max, int)), "team_age_max must be an int"
+    assert(isinstance(team_manager, int)), "team_manager must be an int"
 
     team_insert = ("INSERT INTO Teams (name, team_gender, " +
-        "team_age_min, team_age_max) VALUES (?,?,?,?)")
-    team_data = (name, team_gender, team_age_min, team_age_max)
+        "team_age_min, team_age_max, team_manager) VALUES (?,?,?,?,?)")
+    team_data = (name, team_gender, team_age_min, team_age_max, team_manager)
 
     curs.execute(team_insert, team_data)
 
     commit_close(conn, curs)
 
-# Creates a game
-def insert_game(time: datetime, home_team: int = None, 
-        away_team: int = None):
+# Creates a player in Players table and connects it to an existing team in
+# PlayersOnTeams table
+# Potentially raises sqlite errors, they must be caught by calling function
+def create_player(name: str, gender: str, age: int, team_id: int):
     conn, curs = get_conn_curs(DB_FILENAME)
 
     # Ensures that each input is of the correct type, throws an AssertionError
     # with the provided message if not
-    assert(isinstance(time, datetime)), "time must be a datetime"
-    assert(isinstance(home_team, int) or home_team is None), ("home_team " +
-        "must be an int or None")
-    assert(isinstance(away_team, int) or away_team is None), ("away_team " +
-        "must be an int or None")
+    assert(isinstance(name, str)), "name must be a string"
+    assert(isinstance(gender, int)), "gender must be a string"
+    assert(isinstance(age, int)), "age must be an int"
+    assert(isinstance(team_id, int)), "team_id must be an int"
 
-    game_insert = ("INSERT INTO GAMES (home_team, away_team, time) VALUES " +
-        "(?,?,?)")
-    game_data = (home_team, away_team, time)
+    player_insert = "INSERT INTO Players (name, gender, age) VALUES (?,?,?)"
+    player_data = (name, gender, age)
 
-    curs.execute(game_insert, game_data)
+    curs.execute(player_insert, player_data)
+    player_id = curs.lastrowid
+
+    player_team_insert = ("INSERT INTO PlayersOnTeams (team_id, player_id) " +
+        "VALUES (?,?)")
+    player_team_data = (team_id, player_id)
+
+    curs.execute(player_team_insert, player_team_data)
 
     commit_close(conn, curs)
 
-# Prints the current tournaments in the table
-def print_current_tournaments():
+# Registers an existing team in an existing tournament by inserting into
+# TournamentRegistrations table
+# Potentially raises sqlite errors, they must be caught by calling function
+def register_team_in_tournament(tournament_id: int, team_id: int):
+    conn, curs = get_conn_curs(DB_FILENAME)
+
+    # Ensures that each input is of the correct type, throws an AssertionError
+    # with the provided message if not
+    assert(isinstance(tournament_id, int)), "tournament_id must be an int"
+    assert(isinstance(team_id, int)), "team_id must be an int"
+
+    tournament_team_insert = ("INSERT INTO TournamentRegistrations " +
+        "(tournament_id, team_id) VALUES (?,?)")
+    tournament_team_data = (tournament_id, team_id)
+
+    curs.execute(tournament_team_insert, tournament_team_data)
+
+    commit_close(conn, curs)
+
+###############################################################################
+# READ
+###############################################################################
+
+# Gets all tournaments in the Tournaments table
+# Return format is a dictionary where key is the ID of the tournament
+# and value is another dictionary with tournament_id, name, eligible_gender, 
+# eligible_age_min, eligible_age_max, start_date, end_date, and 
+# registered_teams (which is a list of dictionaries of each team's information)
+def get_all_tournaments():
     conn, curs = get_conn_curs(DB_FILENAME)
 
     curs.execute("SELECT * FROM Tournaments")
     rows = curs.fetchall()
-    print("Current Tournaments table:")
+    
+    tournaments = {}
     for row in rows:
-        print(f"Tournament {row[0]}: {row[1]}, {row[2]}, {row[3]}-{row[4]}, " +
-            f"{row[5]}-{row[6]}")
+        tournament_id = row[0]
+        tournaments[tournament_id] = get_tournament_by_id(tournament_id)
 
     commit_close(conn, curs)
+
+    return tournaments
+
+# Gets all teams in the Teams table
+# Return format is a dictionary where key is the ID of the team
+# and value is another dictionary with team_id, name, team_gender, 
+# team_age_min, team_age_max, team manager (which is a dictionary of that
+# user's information), and roster (which is a list of dictionaries of each
+# player's information)
+def get_all_teams():
+    conn, curs = get_conn_curs(DB_FILENAME)
+
+    curs.execute("SELECT * FROM Teams")
+    rows = curs.fetchall()
+    
+    teams = {}
+    for row in rows:
+        team_id = row[0]
+        teams[team_id] = get_team_by_id(team_id)
+
+    commit_close(conn, curs)
+
+    return teams
+
+def get_tournament_by_id(tournament_id: int):
+    conn, curs = get_conn_curs(DB_FILENAME)
+
+    curs.execute("SELECT * FROM Tournaments WHERE id = ?", [tournament_id])
+    rows = curs.fetchall()
+
+    if len(rows) < 1:
+        raise Exception("Tournament does not exist")
+
+    select_registrations = ("SELECT * FROM TournamentRegistrations " +
+        "WHERE tournament_id = ?")
+    select_data = [tournament_id]
+
+    curs.execute(select_registrations, select_data)
+    registrations = curs.fetchall()
+
+    teams = []
+    for registration in registrations:
+        team_id = registration[1]
+        teams.append(get_team_by_id(team_id))
+
+    tournament_info = rows[0]
+
+    tournament = {
+        "tournament_id": tournament_info[0],
+        "name": tournament_info[1],
+        "eligible_gender": tournament_info[2],
+        "eligible_age_min": tournament_info[3],
+        "eligible_age_max": tournament_info[4],
+        "start_date": tournament_info[5],
+        "end_date": tournament_info[6],
+        "registered_teams": teams
+    }
+
+    commit_close(conn, curs)
+
+    return tournament
+
+def get_team_by_id(team_id: int):
+    conn, curs = get_conn_curs(DB_FILENAME)
+
+    curs.execute("SELECT * FROM Teams WHERE id = ?", [team_id])
+    rows = curs.fetchall()
+
+    if len(rows) < 1:
+        raise Exception("Team does not exist")
+
+    select_roster = "SELECT * FROM PlayersOnTeams WHERE team_id = ?"
+    select_data = [team_id]
+
+    curs.execute(select_roster, select_data)
+    roster = curs.fetchall()
+
+    players = []
+    for roster_item in roster:
+        player_id = roster_item[0]
+        players.append(get_player_by_id(player_id))
+
+    team_info = rows[0]
+
+    team = {
+        "team_id": team_info[0],
+        "name": team_info[1],
+        "team_gender": team_info[2],
+        "team_age_min": team_info[3],
+        "team_age_max": team_info[4],
+        "team_manager": get_user_by_id(team_info[5]),
+        "roster": players
+    }
+
+    commit_close(conn, curs)
+
+    return team
+
+def get_player_by_id(player_id: int):
+    conn, curs = get_conn_curs(DB_FILENAME)
+
+    curs.execute("SELECT * FROM Players WHERE id = ?", [player_id])
+    rows = curs.fetchall()
+
+    if len(rows) < 1:
+        raise Exception("Player does not exist")
+
+    player_info = rows[0]
+
+    player = {
+        "player_id": player_info[0],
+        "name": player_info[1],
+        "gender": player_info[2],
+        "age": player_info[3]
+    }
+
+    commit_close(conn, curs)
+    
+    return player
+
+###############################################################################
+# UPDATE
+###############################################################################
+
+###############################################################################
+# DELETE
+###############################################################################
 
 # Deletes the tournament with the given id
 def delete_tournament(tournament_id: int):
@@ -195,6 +398,10 @@ def delete_tournament(tournament_id: int):
     curs.execute("DELETE FROM Tournaments WHERE id = {}".format(tournament_id))
 
     commit_close(conn, curs)
+
+###############################################################################
+# SETUP
+###############################################################################
 
 def setup_tournament_database():
     create_basic_tables()
@@ -206,15 +413,15 @@ if __name__ == "__main__":
     create_relational_tables()
     print("Table created")
     print("Inserting 2 example tournments")
-    insert_tournament("UChicago Tournament", "co-ed", 18, 24, datetime.now(),
+    create_tournament("UChicago Tournament", "co-ed", 18, 24, datetime.now(),
         datetime.now() + timedelta(days=2))
-    insert_tournament("U12 Tournament", "f", 10, 12, datetime.now(),
+    create_tournament("U12 Tournament", "f", 10, 12, datetime.now(),
         datetime.now() + timedelta(days=2))
     print("Example tournaments inserted")
-    insert_team("UChicago", "co-ed", 18, 24)
-    insert_team("Local School", "f", 10, 12)
+    create_team("UChicago", "co-ed", 18, 24, 1)
+    create_team("Local School", "f", 10, 12, 1)
     print("Example teams inserted")
-    insert_game(datetime.now() + timedelta(days=1), None, 2)
+    create_game(datetime.now() + timedelta(days=1), None, 2)
     print("Example game inserted")
     # print_current_tournaments()
     # print("Deleting first tournament")
