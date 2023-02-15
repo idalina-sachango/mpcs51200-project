@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from util import get_conn_curs, commit_close
+from util.util import get_conn_curs, commit_close
 
 # Constants
 DB_FILENAME = "tournaments.db"
@@ -55,7 +55,7 @@ def create_basic_tables():
         "FOREIGN KEY(home_team) REFERENCES Teams(id), " +
         "FOREIGN KEY(away_team) REFERENCES Teams(id))")
 
-    # Remove these lines for persistence, but they are good for testing
+    # Remove these lines for data persistence, but they are good for testing
     curs.execute("DROP TABLE if exists Tournaments")
     curs.execute("DROP TABLE if exists Games")
     curs.execute("DROP TABLE if exists Teams")
@@ -196,6 +196,9 @@ def delete_tournament(tournament_id: int):
 
     commit_close(conn, curs)
 
+def setup_tournament_database():
+    create_basic_tables()
+    create_relational_tables()
 
 if __name__ == "__main__":
     print("Creating tables")

@@ -1,0 +1,4 @@
+name,username,password,user_type
+TimManager,tm123,password,TournamentManager
+CoachCoach,originalcoach,password,TeamManager
+FanMan,soccerfan01,password,Other
