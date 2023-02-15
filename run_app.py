@@ -42,7 +42,6 @@ def control_loop():
     command = input(LOG_IN_MENU).strip()
     is_logged_in = False
     log_in_failed = False
-    log_in_failed_message = None
     while command != "quit":
         if not is_logged_in:
             username = command
@@ -108,14 +107,3 @@ if __name__ == "__main__":
     # print(get_all_teams())
     # create_game(datetime.now() + timedelta(days=1), 1)
     control_loop()
-
-
-# Example test cases for log_in function:
-# # Should be TournamentManager
-# print(log_in("tm123", "password"))
-# # Should be None
-# print(log_in("tm123", "wrongpassword"))
-# # Should be None
-# print(log_in("tm1234", "password"))
-# # Should be Other
-# print(log_in("soccerfan01", "password"))
