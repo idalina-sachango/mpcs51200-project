@@ -1,9 +1,8 @@
-from database.user_database import setup_user_database, get_all_users
+from database.user_database import setup_user_database
 from database.tournament_database import setup_tournament_database, create_tournament, register_team_in_tournament, create_team, create_game, create_player
 from backend.users import log_in
-from backend.tournaments import print_teams
-from datetime import datetime, timedelta
-import re
+from backend.tournaments import print_teams, print_tournaments
+from datetime import datetime
 
 # Constants
 LOG_IN_MENU = '''
@@ -19,7 +18,8 @@ Enter a number to begin the corresponding action.
 Type 'quit' to quit.
 
 1. View existing teams
-2. Create a tournament
+2. View existing tournaments
+3. Create a tournament
 
 > '''
 TOURNAMENT_NAME_MENU = '''
@@ -27,33 +27,47 @@ Enter the tournament name:
 
 > '''
 TOURNAMENT_GENDERS_MENU = '''
-Enter the genders eligible to play:
+Enter the gender eligible to play. Must be 'm', 'f', or 'co-ed':
 
 > '''
-TOURNAMENT_AGEMIN_MENU = '''
-Enter the minimum age required to play:
+GENDER_ERROR_MESSAGE = '''
+Eligible gender not recognized. Returning to tournament menu. 
+Press 'enter' to continue.
+'''
+TOURNAMENT_AGE_MIN_MENU = '''
+Enter the minimum age eligible to play:
 
 > '''
-TOURNAMENT_AGEMAX_MENU = '''
-Enter the maximum age of play:
+TOURNAMENT_AGE_MAX_MENU = '''
+Enter the maximum age eligible to play:
 
 > '''
-TOURNAMENT_DATESTART_MENU = '''
+AGE_ERROR_MESSAGE = '''
+Age entered in incorrect format. Returning to tournament menu. 
+Press 'enter' to continue.
+'''
+TOURNAMENT_DATE_START_MENU = '''
 Enter start date. Must be written in the following form:
 MM-DD-YYYY HH:MM
 
 Start date input:
 
 > '''
-TOURNAMENT_DATEEND_MENU = '''
+TOURNAMENT_DATE_END_MENU = '''
 Enter end date. Must be written in the following form: 
 MM-DD-YYYY HH:MM
 
 End date input:
 
 > '''
-
-
+DATE_ERROR_MESSAGE = '''
+Date entered in incorrect format. Returning to tournament menu.
+Press 'enter' to continue.
+'''
+TOURNAMENT_ERROR_MESSAGE = '''
+Tournament could not be created. Returning to tournament menu. 
+Press 'enter' to continue.
+'''
 TEAM_MANAGER_MENU = '''
 Enter a number to begin the corresponding action.
 Type 'quit' to quit.
@@ -70,6 +84,7 @@ Type 'quit' to quit.
 1. View existing teams
 
 > '''
+
 # Loops for input
 def control_loop():
     command = input(LOG_IN_MENU).strip()
@@ -91,21 +106,22 @@ def control_loop():
                         if command == "1":
                             print_teams()
                         elif command == "2":
+                            print_tournaments()
+                        elif command == "3":
                             # Create a tournament
-                            tournament_creation_failed = False
-
                             name = input(TOURNAMENT_NAME_MENU)
                             genders = input(TOURNAMENT_GENDERS_MENU)
+
                             if (name == 'quit') or (genders == 'quit'):
                                 command = 'quit'
                                 continue
 
-                            # check genders are entered correctly
+                            # Check genders are entered correctly
                             if genders not in ['m', 'f', 'co-ed']:
-                                command = input("Eligible genders entered in incorrect format. Returning to tournament menu. Press 'enter' to continue.")
+                                command = input(GENDER_ERROR_MESSAGE)
                                 continue
                             # Check ages
-                            age_min = input(TOURNAMENT_AGEMIN_MENU)
+                            age_min = input(TOURNAMENT_AGE_MIN_MENU)
                             if age_min == 'quit':
                                 command = 'quit'
                                 continue
@@ -113,9 +129,9 @@ def control_loop():
                                 try:
                                     age_min = int(age_min)
                                 except:
-                                    command = input("Minimum age entered in incorrect format. Returning to tournament menu. Press 'enter' to continue.")
+                                    command = input(AGE_ERROR_MESSAGE)
                                     continue
-                            age_max = input(TOURNAMENT_AGEMAX_MENU)
+                            age_max = input(TOURNAMENT_AGE_MAX_MENU)
                             if age_max == 'quit':
                                 command = 'quit'
                                 continue
@@ -123,38 +139,41 @@ def control_loop():
                                 try:
                                     age_max = int(age_max)
                                 except:
-                                    command = input("Maximum age entered in incorrect format. Returning to tournament menu. Press 'enter' to continue.")
+                                    command = input(AGE_ERROR_MESSAGE)
                                     continue
                             # Check date formats
-                            start_date = input(TOURNAMENT_DATESTART_MENU)
+                            start_date = input(TOURNAMENT_DATE_START_MENU)
                             if start_date == 'quit':
                                     command = 'quit'
                                     continue
                             else:
                                 try: 
-                                    start_date = datetime.strptime(start_date, "%m-%d-%Y %H:%M")
+                                    start_date = datetime.strptime(start_date, 
+                                        "%m-%d-%Y %H:%M")
                                 except:
-                                    command = input("\nDate entered in incorrect format. Returning to tournament page. Press 'enter' to continue.")
+                                    command = input(DATE_ERROR_MESSAGE)
                                     continue
                             
-                            end_date = input(TOURNAMENT_DATEEND_MENU)
+                            end_date = input(TOURNAMENT_DATE_END_MENU)
                             if end_date == 'quit':
                                     command = 'quit'
                                     continue
                             else:
                                 try:
-                                    end_date = datetime.strptime(end_date, "%m-%d-%Y %H:%M")
+                                    end_date = datetime.strptime(end_date, 
+                                        "%m-%d-%Y %H:%M")
                                 except:
-                                    command = input("\nDate entered in incorrect format. Returning to tournament page.. Press 'enter' to continue.")
+                                    command = input(DATE_ERROR_MESSAGE)
                                     continue
 
-                            # Check creation of tournament was succesful. If so, break loop.
+                            # Check creation of tournament was succesful.
+                            # If so, break loop.
                             try:
-                                create_tournament(name, genders, int(age_min), int(age_max), start_date, end_date)
+                                create_tournament(name, genders, int(age_min),
+                                    int(age_max), start_date, end_date)
                                 print("\nTournament successfully created.")
-                                command = "quit"
                             except:
-                                print("\nTournament could not be created. Returning to tournament main page. Press 'enter' to continue.")
+                                print(TOURNAMENT_ERROR_MESSAGE)
                                 continue
 
                         elif command == "quit":

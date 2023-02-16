@@ -133,7 +133,7 @@ def create_tournament(name: str, eligible_gender: str, eligible_age_min: int,
         "int")
     assert(isinstance(start_date, datetime)), "start_date must be a datetime"
     assert(isinstance(end_date, datetime)), "end_date must be a datetime"
-    assert(start_date < end_date, "start_date must be before end_date")
+    assert(start_date < end_date), "start_date must be before end_date"
 
     tournament_insert = ("INSERT INTO Tournaments (name, eligible_gender, " +
     "eligible_age_min, eligible_age_max, start_date, end_date) VALUES " +
