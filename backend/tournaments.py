@@ -1,4 +1,4 @@
-from database.tournament_database import get_all_teams, get_all_tournaments
+from database.tournament_database import get_all_teams, get_all_tournaments, get_team_age_range, get_tournament_by_id, get_team_by_id, get_team_gender_range
 from backend.users import print_user
 
 LINE_DELIMITER = "*" * 40
@@ -48,3 +48,28 @@ def print_roster(roster: list):
         roster_num += 1
         print(f"{roster_num}. {player['name']}, {player['gender']}, " +
             f"{player['age']} years old")
+
+def check_team_eligibility(team_id: int, tournament_id: int):
+    # Check empty teams
+    if not get_team_by_id(team_id)["roster"]:
+        return False
+
+    # Check if all players fit age requirement
+    eligible_age_min = get_tournament_by_id(tournament_id)["eligible_age_min"]
+    eligible_age_max = get_tournament_by_id(tournament_id)["eligible_age_max"]
+    team_min_age, team_max_age = get_team_age_range(team_id)
+
+    if team_min_age < eligible_age_min or team_max_age > eligible_age_max:
+        return False
+
+    # Check if all players fir gender requirement
+    eligible_gender = get_tournament_by_id(tournament_id)["eligible_gender"]
+    team_gender = get_team_gender_range(team_id)
+
+    if eligible_gender == team_gender or eligible_gender == "co-ed":
+        return True
+    else:
+        return False
+
+
+    

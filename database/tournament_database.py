@@ -343,7 +343,7 @@ def get_team_by_id(team_id: int):
 
     players = []
     for roster_item in roster:
-        player_id = roster_item[0]
+        player_id = roster_item[1]
         players.append(get_player_by_id(player_id))
 
     team_info = rows[0]
@@ -384,6 +384,151 @@ def get_player_by_id(player_id: int):
     
     return player
 
+def get_team_manager_id(team_id: int):
+    conn, curs = get_conn_curs(DB_FILENAME)
+
+    curs.execute("SELECT * FROM Teams WHERE id = ?", [team_id])
+    rows = curs.fetchall()
+
+    if len(rows) < 1:
+        raise Exception("Team does not exist")
+
+    team_manager_id = rows[0][5]
+
+    commit_close(conn, curs)
+
+    return team_manager_id
+
+def get_team_ids():
+    conn, curs = get_conn_curs(DB_FILENAME)
+
+    curs.execute("SELECT * FROM Teams")
+    rows = curs.fetchall()
+    
+    team_ids = []
+    for row in rows:
+        team_id = row[0]
+        team_ids.append(team_id)
+
+    commit_close(conn, curs)
+    return team_ids
+
+def get_tournament_ids():
+    conn, curs = get_conn_curs(DB_FILENAME)
+
+    curs.execute("SELECT * FROM Tournaments")
+    rows = curs.fetchall()
+
+    tournament_ids = []
+    for row in rows:
+        tournament_id = row[0]
+        tournament_ids.append(tournament_id)
+
+    commit_close(conn, curs)
+    return tournament_ids
+
+def get_player_ids():
+    conn, curs = get_conn_curs(DB_FILENAME)
+
+    curs.execute("SELECT * FROM Players")
+    rows = curs.fetchall()
+
+    player_ids = []
+    for row in rows:
+        player_id = row[0]
+        player_ids.append(player_id)
+
+    commit_close(conn, curs)
+    return player_ids
+
+# Returns team actual age range
+# Returns none, none if no players
+def get_team_age_range(team_id: int):
+    conn, curs = get_conn_curs(DB_FILENAME)
+
+    curs.execute("SELECT * FROM Teams WHERE id = ?", [team_id])
+    rows = curs.fetchall()
+
+    if len(rows) < 1:
+        raise Exception("Team does not exist")
+
+    select_roster = "SELECT * FROM PlayersOnTeams WHERE team_id = ?"
+    select_data = [team_id]
+
+    curs.execute(select_roster, select_data)
+    roster = curs.fetchall()
+
+    min_age = None
+    max_age = None
+    for roster_item in roster:
+        player_id = roster_item[1]
+        age = get_player_by_id(player_id)["age"]
+        if not max_age or age > max_age:
+            max_age = age
+        if not min_age or age < min_age:
+            min_age = age
+
+    commit_close(conn, curs)
+    return min_age, max_age
+
+# Returns team genders: m, f, or mixed
+# Returns none if no players
+def get_team_gender_range(team_id: int):
+    conn, curs = get_conn_curs(DB_FILENAME)
+
+    curs.execute("SELECT * FROM Teams WHERE id = ?", [team_id])
+    rows = curs.fetchall()
+
+    if len(rows) < 1:
+        raise Exception("Team does not exist")
+
+    select_roster = "SELECT * FROM PlayersOnTeams WHERE team_id = ?"
+    select_data = [team_id]
+
+    curs.execute(select_roster, select_data)
+    roster = curs.fetchall()
+
+    male = False
+    female = False
+    for roster_item in roster:
+        player_id = roster_item[0]
+        gender = get_player_by_id(player_id)["gender"]
+        if gender == "m":
+            male = True
+        else:
+            female = True
+
+    commit_close(conn, curs)
+
+    if male and female:
+        return "mixed"
+    elif male:
+        return "m"
+    elif female:
+        return "f"
+    else:
+        return None
+
+# Get team by player id
+def get_team_by_player(player_id: int):
+    conn, curs = get_conn_curs(DB_FILENAME)
+
+    select_roster = "SELECT * FROM PlayersOnTeams WHERE player_id = ?"
+    select_data = [player_id]
+
+    curs.execute(select_roster, select_data)
+    roster = curs.fetchall()
+
+    team_id = None
+    if roster:
+        team_id = roster[0][0]
+
+    commit_close(conn, curs)
+    # print(f"team id: {team_id} player id: {player_id}")
+
+    return team_id
+    
+
 ###############################################################################
 # UPDATE
 ###############################################################################
@@ -397,6 +542,15 @@ def delete_tournament(tournament_id: int):
     conn, curs = get_conn_curs(DB_FILENAME)
 
     curs.execute("DELETE FROM Tournaments WHERE id = {}".format(tournament_id))
+
+    commit_close(conn, curs)
+
+# Deletes the player with the given id
+def delete_player(player_id: int):
+    conn, curs = get_conn_curs(DB_FILENAME)
+
+    curs.execute("DELETE FROM PlayersOnTeams WHERE player_id = {}".format(player_id))
+    curs.execute("DELETE FROM Players WHERE id = {}".format(player_id))
 
     commit_close(conn, curs)
 
