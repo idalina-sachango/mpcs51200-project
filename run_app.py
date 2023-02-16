@@ -3,6 +3,7 @@ from database.tournament_database import setup_tournament_database, create_tourn
 from backend.users import log_in
 from backend.tournaments import print_teams
 from datetime import datetime, timedelta
+import re
 
 # Constants
 LOG_IN_MENU = '''
@@ -21,6 +22,38 @@ Type 'quit' to quit.
 2. Create a tournament
 
 > '''
+TOURNAMENT_NAME_MENU = '''
+Enter the tournament name:
+
+> '''
+TOURNAMENT_GENDERS_MENU = '''
+Enter the genders eligible to play:
+
+> '''
+TOURNAMENT_AGEMIN_MENU = '''
+Enter the minimum age required to play:
+
+> '''
+TOURNAMENT_AGEMAX_MENU = '''
+Enter the maximum age of play:
+
+> '''
+TOURNAMENT_DATESTART_MENU = '''
+Enter start date. Must be written in the following form:
+MM-DD-YYYY HH:MM
+
+Start date input:
+
+> '''
+TOURNAMENT_DATEEND_MENU = '''
+Enter end date. Must be written in the following form: 
+MM-DD-YYYY HH:MM
+
+End date input:
+
+> '''
+
+
 TEAM_MANAGER_MENU = '''
 Enter a number to begin the corresponding action.
 Type 'quit' to quit.
@@ -59,7 +92,40 @@ def control_loop():
                             print_teams()
                         elif command == "2":
                             # Create a tournament
-                            print("TODO")
+                            tournament_creation_failed = False
+
+                            name = input(TOURNAMENT_NAME_MENU)
+                            genders = input(TOURNAMENT_GENDERS_MENU)
+                            if genders not in ['m', 'f', 'co-ed']:
+                                command = input("Eligible genders entered in incorrect format. Returning to tournament menu.. Press 'enter' to continue.")
+                                continue
+
+                            age_min = input(TOURNAMENT_AGEMIN_MENU)
+                            age_max = input(TOURNAMENT_AGEMAX_MENU)
+                            start_date = input(TOURNAMENT_DATESTART_MENU)
+                            
+                            try: 
+                                start_date = datetime.strptime(start_date, "%m-%d-%Y %H:%M")
+                            except:
+                                command = input("\nDate entered in incorrect format. Returning to tournament page. Press 'enter' to continue.")
+                                continue
+                            
+                            end_date = input(TOURNAMENT_DATEEND_MENU)
+                            try:
+                                
+                                end_date = datetime.strptime(end_date, "%m-%d-%Y %H:%M")
+                            except:
+                                command = input("\nDate entered in incorrect format. Returning to tournament page.. Press 'enter' to continue.")
+                                continue
+
+                            
+                            try:
+                                create_tournament(name, genders, int(age_min), int(age_max), start_date, end_date)
+                                print("\nTournament successfully created.")
+                                command = "quit"
+                            except:
+                                print("\nTournament could not be created. Returning to tournament main page. Press 'enter' to continue.")
+                                continue
                         elif command == "quit":
                             log_in_failed = False
                             break
