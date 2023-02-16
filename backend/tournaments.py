@@ -29,6 +29,7 @@ def print_teams():
 
     for team in teams.values():
         print(LINE_DELIMITER)
+        print(f"Team ID: {team['team_id']}\n")
         print(f"Team Name: {team['name']}\n")
         print(f"Team Gender: {team['team_gender']}\n")
         print(f"Team Age Range: {team['team_age_min']}-" +
@@ -47,7 +48,7 @@ def print_roster(roster: list):
     for player in roster:
         roster_num += 1
         print(f"{roster_num}. {player['name']}, {player['gender']}, " +
-            f"{player['age']} years old")
+            f"{player['age']} years old. ID: {player['player_id']}")
 
 def check_team_eligibility(team_id: int, tournament_id: int):
     # Check empty teams
@@ -70,6 +71,4 @@ def check_team_eligibility(team_id: int, tournament_id: int):
         return True
     else:
         return False
-
-
-    
+ 

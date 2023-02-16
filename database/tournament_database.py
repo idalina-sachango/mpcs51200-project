@@ -561,25 +561,3 @@ def delete_player(player_id: int):
 def setup_tournament_database():
     create_basic_tables()
     create_relational_tables()
-
-if __name__ == "__main__":
-    print("Creating tables")
-    create_basic_tables()
-    create_relational_tables()
-    print("Table created")
-    print("Inserting 2 example tournments")
-    create_tournament("UChicago Tournament", "co-ed", 18, 24, datetime.now(),
-        datetime.now() + timedelta(days=2))
-    create_tournament("U12 Tournament", "f", 10, 12, datetime.now(),
-        datetime.now() + timedelta(days=2))
-    print("Example tournaments inserted")
-    create_team("UChicago", "co-ed", 18, 24, 1)
-    create_team("Local School", "f", 10, 12, 1)
-    print("Example teams inserted")
-    create_game(datetime.now() + timedelta(days=1), None, 2)
-    print("Example game inserted")
-    # print_current_tournaments()
-    # print("Deleting first tournament")
-    # delete_tournament(1)
-    # print("First tournament deleted")
-    # print_current_tournaments()

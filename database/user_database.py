@@ -135,17 +135,3 @@ def delete_user(user_id: int):
 def setup_user_database():
     create_users_table()
     insert_intial_users()
-
-
-if __name__ == "__main__":
-    print("Creating table")
-    create_users_table()
-    print("Table created")
-    print("Inserting 2 initial users")
-    insert_intial_users()
-    print("Initial users inserted")
-    print(get_all_users())
-    # print("Deleting first user")
-    # delete_user(1)
-    # print("First user deleted")
-    # print_current_users()

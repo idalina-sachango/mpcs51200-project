@@ -1,7 +1,12 @@
 from database.user_database import setup_user_database
-from database.tournament_database import setup_tournament_database, create_tournament, register_team_in_tournament, create_team, create_game, create_player, get_team_manager_id, get_team_ids, get_team_by_id, get_tournament_ids, get_player_by_id, delete_player, get_player_ids, get_team_by_player
+from database.tournament_database import (
+    setup_tournament_database, create_tournament,
+    register_team_in_tournament, create_team, create_player,
+    get_team_manager_id, get_team_ids, get_team_by_id, get_tournament_ids,
+    delete_player, get_player_ids, get_team_by_player)
 from backend.users import log_in
-from backend.tournaments import print_teams, print_tournaments, check_team_eligibility
+from backend.tournaments import (print_teams, print_tournaments,
+    check_team_eligibility)
 from datetime import datetime
 
 # Constants
@@ -69,7 +74,6 @@ Tournament could not be created. Returning to tournament menu.
 Press 'enter' to continue.
 '''
 
-
 TEAM_MANAGER_MENU = '''
 Enter a number to begin the corresponding action.
 Type 'quit' to quit.
@@ -79,6 +83,7 @@ Type 'quit' to quit.
 3. Delete a player from team
 4. Add player to team
 5. Register for tournament
+
 > '''
 TEAM_NAME_MENU = '''
 Enter the team name:
@@ -189,7 +194,6 @@ DELETE_PLAYER_ERROR_MESSAGE = '''
 Deletion cannot be completed. Returning to team menu. 
 Press 'enter' to continue.
 '''
-
 
 OTHER_MENU = '''
 Enter a number to begin the corresponding action.
@@ -380,8 +384,6 @@ def control_loop():
                             except:
                                 print(DELETE_PLAYER_ERROR_MESSAGE)
                                 continue   
-
-
                             
                         elif command == "4":
                             # Add team player
@@ -532,12 +534,4 @@ def control_loop():
 if __name__ == "__main__":
     setup_user_database()
     setup_tournament_database()
-    # create_tournament("UChicago Tournament", "co-ed", 18, 24, datetime.now(),
-    #     datetime.now() + timedelta(days=2))
-    # create_team("UChicago", "co-ed", 18, 24, 2)
-    # register_team_in_tournament(1, 1)
-    # create_player("Player 1", "M", 20, 1)
-    # print(get_all_tournaments())
-    # print(get_all_teams())
-    # create_game(datetime.now() + timedelta(days=1), 1)
     control_loop()
