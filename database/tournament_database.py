@@ -63,13 +63,13 @@ def create_basic_tables():
         "FOREIGN KEY(away_team) REFERENCES Teams(id))")
 
     # Remove these lines for data persistence, but they are good for testing
-    curs.execute("DROP TABLE if exists TournamentRegistrations")
-    curs.execute("DROP TABLE if exists PlayersOnTeams")
-    curs.execute("DROP TABLE if exists GamesInTournaments")
-    curs.execute("DROP TABLE if exists Players")
-    curs.execute("DROP TABLE if exists Games")
-    curs.execute("DROP TABLE if exists Teams")
-    curs.execute("DROP TABLE if exists Tournaments")
+    # curs.execute("DROP TABLE if exists TournamentRegistrations")
+    # curs.execute("DROP TABLE if exists PlayersOnTeams")
+    # curs.execute("DROP TABLE if exists GamesInTournaments")
+    # curs.execute("DROP TABLE if exists Players")
+    # curs.execute("DROP TABLE if exists Games")
+    # curs.execute("DROP TABLE if exists Teams")
+    # curs.execute("DROP TABLE if exists Tournaments")
 
     # Execute the statements
     statements = [tournaments_create, teams_create, players_create, 
@@ -133,15 +133,16 @@ def create_tournament(name: str, eligible_gender: str, eligible_age_min: int,
         "int")
     assert(isinstance(start_date, datetime)), "start_date must be a datetime"
     assert(isinstance(end_date, datetime)), "end_date must be a datetime"
+    assert(start_date < end_date, "start_date must be before end_date")
 
     tournament_insert = ("INSERT INTO Tournaments (name, eligible_gender, " +
-        "eligible_age_min, eligible_age_max, start_date, end_date) VALUES " +
-        "(?,?,?,?,?,?)")
+    "eligible_age_min, eligible_age_max, start_date, end_date) VALUES " +
+    "(?,?,?,?,?,?)")
     tournament_data = (name, eligible_gender, eligible_age_min,
         eligible_age_max, start_date, end_date)
 
     curs.execute(tournament_insert, tournament_data)
-
+    
     commit_close(conn, curs)
 
 # Creates a game in Games table and connects it to an existing tournament in

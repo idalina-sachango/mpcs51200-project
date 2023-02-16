@@ -96,29 +96,59 @@ def control_loop():
 
                             name = input(TOURNAMENT_NAME_MENU)
                             genders = input(TOURNAMENT_GENDERS_MENU)
-                            if genders not in ['m', 'f', 'co-ed']:
-                                command = input("Eligible genders entered in incorrect format. Returning to tournament menu.. Press 'enter' to continue.")
+                            if (name == 'quit') or (genders == 'quit'):
+                                command = 'quit'
                                 continue
 
-                            age_min = input(TOURNAMENT_AGEMIN_MENU)
-                            age_max = input(TOURNAMENT_AGEMAX_MENU)
-                            start_date = input(TOURNAMENT_DATESTART_MENU)
-                            
-                            try: 
-                                start_date = datetime.strptime(start_date, "%m-%d-%Y %H:%M")
-                            except:
-                                command = input("\nDate entered in incorrect format. Returning to tournament page. Press 'enter' to continue.")
+                            # check genders are entered correctly
+                            if genders not in ['m', 'f', 'co-ed']:
+                                command = input("Eligible genders entered in incorrect format. Returning to tournament menu. Press 'enter' to continue.")
                                 continue
+                            # Check ages
+                            age_min = input(TOURNAMENT_AGEMIN_MENU)
+                            if age_min == 'quit':
+                                command = 'quit'
+                                continue
+                            else:
+                                try:
+                                    age_min = int(age_min)
+                                except:
+                                    command = input("Minimum age entered in incorrect format. Returning to tournament menu. Press 'enter' to continue.")
+                                    continue
+                            age_max = input(TOURNAMENT_AGEMAX_MENU)
+                            if age_max == 'quit':
+                                command = 'quit'
+                                continue
+                            else:
+                                try:
+                                    age_max = int(age_max)
+                                except:
+                                    command = input("Maximum age entered in incorrect format. Returning to tournament menu. Press 'enter' to continue.")
+                                    continue
+                            # Check date formats
+                            start_date = input(TOURNAMENT_DATESTART_MENU)
+                            if start_date == 'quit':
+                                    command = 'quit'
+                                    continue
+                            else:
+                                try: 
+                                    start_date = datetime.strptime(start_date, "%m-%d-%Y %H:%M")
+                                except:
+                                    command = input("\nDate entered in incorrect format. Returning to tournament page. Press 'enter' to continue.")
+                                    continue
                             
                             end_date = input(TOURNAMENT_DATEEND_MENU)
-                            try:
-                                
-                                end_date = datetime.strptime(end_date, "%m-%d-%Y %H:%M")
-                            except:
-                                command = input("\nDate entered in incorrect format. Returning to tournament page.. Press 'enter' to continue.")
-                                continue
+                            if end_date == 'quit':
+                                    command = 'quit'
+                                    continue
+                            else:
+                                try:
+                                    end_date = datetime.strptime(end_date, "%m-%d-%Y %H:%M")
+                                except:
+                                    command = input("\nDate entered in incorrect format. Returning to tournament page.. Press 'enter' to continue.")
+                                    continue
 
-                            
+                            # Check creation of tournament was succesful. If so, break loop.
                             try:
                                 create_tournament(name, genders, int(age_min), int(age_max), start_date, end_date)
                                 print("\nTournament successfully created.")
@@ -126,6 +156,7 @@ def control_loop():
                             except:
                                 print("\nTournament could not be created. Returning to tournament main page. Press 'enter' to continue.")
                                 continue
+
                         elif command == "quit":
                             log_in_failed = False
                             break
