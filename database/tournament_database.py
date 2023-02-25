@@ -45,7 +45,8 @@ def create_basic_tables():
     tournaments_create = ("CREATE TABLE if not exists Tournaments " +
         "(id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(250), " +
         "eligible_gender VARCHAR(5), eligible_age_min INT, " +
-        "eligible_age_max INT, start_date DATETIME, end_date DATETIME)")
+        "eligible_age_max INT, start_date DATETIME, end_date DATETIME," + 
+        "tournament_manager INT)")
     
     teams_create = ("CREATE TABLE if not exists Teams " +
         "(id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(250), " +
@@ -119,7 +120,8 @@ def create_relational_tables():
 
 # Creates a tournament
 def create_tournament(name: str, eligible_gender: str, eligible_age_min: int, 
-        eligible_age_max: int, start_date: datetime, end_date: datetime):
+        eligible_age_max: int, start_date: datetime, end_date: datetime,
+        tournament_manager: int):
     conn, curs = get_conn_curs(DB_FILENAME)
 
     # Ensures that each input is of the correct type, throws an AssertionError
@@ -131,15 +133,17 @@ def create_tournament(name: str, eligible_gender: str, eligible_age_min: int,
         "int")
     assert(isinstance(eligible_age_max, int)), ("eligible_age_max must be an " +
         "int")
+    assert(isinstance(tournament_manager, int)), ("tournament_manager must be an " +
+        "int")
     assert(isinstance(start_date, datetime)), "start_date must be a datetime"
     assert(isinstance(end_date, datetime)), "end_date must be a datetime"
     assert(start_date < end_date), "start_date must be before end_date"
 
     tournament_insert = ("INSERT INTO Tournaments (name, eligible_gender, " +
-    "eligible_age_min, eligible_age_max, start_date, end_date) VALUES " +
-    "(?,?,?,?,?,?)")
+    "eligible_age_min, eligible_age_max, start_date, end_date, tournament_manager) VALUES " +
+    "(?,?,?,?,?,?,?)")
     tournament_data = (name, eligible_gender, eligible_age_min,
-        eligible_age_max, start_date, end_date)
+        eligible_age_max, start_date, end_date, tournament_manager)
 
     curs.execute(tournament_insert, tournament_data)
     
