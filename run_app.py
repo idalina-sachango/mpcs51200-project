@@ -25,6 +25,8 @@ Type 'quit' to quit.
 1. View existing teams
 2. View existing tournaments
 3. Create a tournament
+4. Create game
+5. Input scores
 
 > '''
 TOURNAMENT_NAME_MENU = '''
@@ -262,8 +264,8 @@ def control_loop():
                             # Check date formats
                             start_date = input(TOURNAMENT_DATE_START_MENU)
                             if start_date == 'quit':
-                                    command = 'quit'
-                                    continue
+                                command = 'quit'
+                                continue
                             else:
                                 try: 
                                     start_date = datetime.strptime(start_date, 
@@ -274,8 +276,8 @@ def control_loop():
                             
                             end_date = input(TOURNAMENT_DATE_END_MENU)
                             if end_date == 'quit':
-                                    command = 'quit'
-                                    continue
+                                command = 'quit'
+                                continue
                             else:
                                 try:
                                     end_date = datetime.strptime(end_date, 

@@ -60,6 +60,7 @@ def create_basic_tables():
     games_create = ("CREATE TABLE if not exists Games " +
         "(id INTEGER PRIMARY KEY AUTOINCREMENT, home_team INT, " +
         "away_team INT, time DATETIME, " +
+        "location VARCHAR(50)," +
         "FOREIGN KEY(home_team) REFERENCES Teams(id), " +
         "FOREIGN KEY(away_team) REFERENCES Teams(id))")
 
@@ -107,6 +108,12 @@ def create_relational_tables():
 
     games_in_tournaments_create = ("CREATE TABLE if not exists " +
         "GamesInTournaments (tournament_id INT, game_id INT, " +
+        "FOREIGN KEY(tournament_id) REFERENCES Tournaments(id), " +
+        "FOREIGN KEY(game_id) REFERENCES Games(id))")
+
+    location_of_tournament = ("CREATE TABLE if not exists " +
+        "LocationOfTournament (tournament_id INT, game_id INT, " +
+        "location VARCHAR(50),"
         "FOREIGN KEY(tournament_id) REFERENCES Tournaments(id), " +
         "FOREIGN KEY(game_id) REFERENCES Games(id))")
 
@@ -165,9 +172,9 @@ def create_game(time: datetime, tournament_id: int, home_team: int = None,
     assert(isinstance(away_team, int) or away_team is None), ("away_team " +
         "must be an int or None")
 
-    game_insert = ("INSERT INTO Games (home_team, away_team, time) VALUES " +
-        "(?,?,?)")
-    game_data = (home_team, away_team, time)
+    game_insert = ("INSERT INTO Games (home_team, away_team, time, location) VALUES " +
+        "(?,?,?,?)")
+    game_data = (home_team, away_team, time, "null")
 
     curs.execute(game_insert, game_data)
     game_id = curs.lastrowid
