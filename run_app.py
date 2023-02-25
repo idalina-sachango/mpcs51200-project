@@ -3,7 +3,7 @@ from database.tournament_database import (
     setup_tournament_database, create_tournament,
     register_team_in_tournament, create_team, create_player,
     get_team_manager_id, get_team_ids, get_team_by_id, get_tournament_ids,
-    delete_player, get_player_ids, get_team_by_player)
+    delete_player, get_player_ids, get_team_by_player, get_tournament_by_name)
 from backend.users import log_in
 from backend.tournaments import (print_teams, print_tournaments,
     check_team_eligibility)
@@ -27,6 +27,7 @@ Type 'quit' to quit.
 3. Create a tournament
 4. Create game
 5. Input scores
+6. Set tournament location
 
 > '''
 TOURNAMENT_NAME_MENU = '''
@@ -40,7 +41,8 @@ Enter the gender eligible to play. Must be 'm', 'f', or 'co-ed':
 GENDER_ERROR_MESSAGE = '''
 Eligible gender not recognized. Returning to tournament menu. 
 Press 'enter' to continue.
-'''
+
+> '''
 TOURNAMENT_AGE_MIN_MENU = '''
 Enter the minimum age eligible to play:
 
@@ -52,7 +54,8 @@ Enter the maximum age eligible to play:
 AGE_ERROR_MESSAGE = '''
 Age entered in incorrect format. Returning to tournament menu. 
 Press 'enter' to continue.
-'''
+
+> '''
 TOURNAMENT_DATE_START_MENU = '''
 Enter start date. Must be written in the following form:
 MM-DD-YYYY HH:MM
@@ -70,12 +73,53 @@ End date input:
 DATE_ERROR_MESSAGE = '''
 Date entered in incorrect format. Returning to tournament menu.
 Press 'enter' to continue.
-'''
+
+> '''
 TOURNAMENT_ERROR_MESSAGE = '''
 Tournament could not be created. Returning to tournament menu. 
 Press 'enter' to continue.
-'''
 
+> '''
+TOURNAMENT_LOCATION_MENU = '''
+Enter the location of the Tournament. Must be written as a city, state combination:
+
+> '''
+GAME_TIME_MENU = '''
+Enter start time of game:
+
+>'''
+GAME_HOMETEAM_MENU = '''
+Enter home team id:
+
+>'''
+
+GAME_AWAYTEAM_MENU = '''
+Enter away team id:
+
+>'''
+GAME_ID_MENU = '''
+Input game id:
+
+> '''
+GAME_SCORE_MENU = '''
+Input final game score:
+
+> '''
+GAME_ERROR_MESSAGE = '''
+Game could not be created. Returning to tournament menu.
+Press 'enter' to continue.
+
+> '''
+INT_ERROR = '''
+Home team or away team id entered in incorrect format. Returning to tournament menu. 
+Press 'enter' to continue.
+
+> '''
+TIME_ERROR = '''
+Time entered in incorrect format. Returning to tournament menu. 
+Press 'enter' to continue.
+
+> '''
 TEAM_MANAGER_MENU = '''
 Enter a number to begin the corresponding action.
 Type 'quit' to quit.
@@ -98,7 +142,8 @@ Enter the gender eligible to play. Must be 'm', 'f', or 'co-ed':
 TEAM_GENDER_ERROR_MESSAGE = '''
 Eligible gender not recognized. Returning to team menu. 
 Press 'enter' to continue.
-'''
+
+> '''
 TEAM_AGE_MIN_MENU = '''
 Enter the minimum age eligible to play:
 
@@ -110,15 +155,18 @@ Enter the maximum age eligible to play:
 TEAM_AGE_ERROR_MESSAGE = '''
 Age entered in incorrect format. Returning to team menu. 
 Press 'enter' to continue.
-'''
+
+> '''
 TEAM_MAX_AGE_ERROR_MESSAGE = '''
 Max age must be greater than or equal to min age. Returning to team menu. 
 Press 'enter' to continue.
-'''
+
+> '''
 TEAM_ERROR_MESSAGE = '''
 Team could not be created. Returning to team menu. 
 Press 'enter' to continue.
-'''
+
+> '''
 PLAYER_TEAM_ID_MENU = '''
 Enter the team id to add player:
 
@@ -126,11 +174,13 @@ Enter the team id to add player:
 TEAM_ID_ERROR_MESSAGE = '''
 Invalid team id entered. Returning to team menu. 
 Press 'enter' to continue.
-'''
+
+> '''
 NOT_AUTHORIZED_ERROR_MESSAGE = '''
 Not authorized. Returning to team menu. 
 Press 'enter' to continue.
-'''
+
+> '''
 PLAYER_NAME_MENU = '''
 Enter the player name:
 
@@ -142,11 +192,12 @@ Enter the player gender. Must be 'm' or 'f':
 PLAYER_GENDER_ERROR_MESSAGE = '''
 Eligible gender not recognized. Returning to team menu. 
 Press 'enter' to continue.
-'''
+
+> '''
 PLAYER_GENDER_INELIGIBLE_ERROR_MESSAGE = '''
 Gender to eligible to join team. Returning to team menu. 
 Press 'enter' to continue.
-'''
+> '''
 PLAYER_AGE_MENU = '''
 Enter the age of player:
 
@@ -154,15 +205,18 @@ Enter the age of player:
 PLAYER_AGE_ERROR_MESSAGE = '''
 Age entered in incorrect format. Returning to team menu. 
 Press 'enter' to continue.
-'''
+
+> '''
 PLAYER_AGE_INELIGIBLE_ERROR_MESSAGE = '''
 Age out of range. Returning to team menu. 
 Press 'enter' to continue.
-'''
+
+> '''
 PLAYER_ERROR_MESSAGE = '''
 Player could not be added. Returning to team menu. 
 Press 'enter' to continue.
-'''
+
+> '''
 REGISTER_TEAM_ID_MENU = '''
 Enter the team id:
 
@@ -174,16 +228,19 @@ Enter the tournament id:
 TOURNAMENT_ID_ERROR_MESSAGE = '''
 Invalid tournament id entered. Returning to team menu. 
 Press 'enter' to continue.
-'''
+
+> '''
 TEAM_INELIGIBLE_ERROR_MESSAGE = '''
 Some player in team is not eligible for this tournament. 
 Returning to team menu. 
 Press 'enter' to continue.
-'''
+
+> '''
 REGISTER_ERROR_MESSAGE = '''
 Registration cannot be completed. Returning to team menu. 
 Press 'enter' to continue.
-'''
+
+> '''
 DELETE_PLAYER_ID_MENU = '''
 Enter the player id:
 
@@ -191,12 +248,13 @@ Enter the player id:
 DELETE_PLAYER_ID_ERROR_MESSAGE = '''
 Invalid player id entered. Returning to team menu. 
 Press 'enter' to continue.
-'''
+
+> '''
 DELETE_PLAYER_ERROR_MESSAGE = '''
 Deletion cannot be completed. Returning to team menu. 
 Press 'enter' to continue.
-'''
 
+> '''
 OTHER_MENU = '''
 Enter a number to begin the corresponding action.
 Type 'quit' to quit.
@@ -285,17 +343,66 @@ def control_loop():
                                 except:
                                     command = input(DATE_ERROR_MESSAGE)
                                     continue
+                            location = input(TOURNAMENT_LOCATION_MENU)
+                            if location == 'quit':
+                                command = 'quit'
+                                continue
 
                             # Check creation of tournament was succesful.
                             # If so, break loop.
                             try:
                                 create_tournament(name, genders, int(age_min),
-                                    int(age_max), start_date, end_date, user_id)
+                                    int(age_max), start_date, end_date, user_id, location)
                                 print("\nTournament successfully created.")
                             except:
                                 print(TOURNAMENT_ERROR_MESSAGE)
                                 continue
-
+                        elif command == "4":
+                            # Create game
+                            time = input(GAME_TIME_MENU)
+                            tournament_name = input(TOURNAMENT_NAME_MENU)
+                            home_team = input(GAME_HOMETEAM_MENU)
+                            away_team = input(GAME_AWAYTEAM_MENU)
+                            tournament_id = get_tournament_by_name(tournament_name)
+                            try:
+                                time = datetime.strptime(time, 
+                                    "%H:%M")
+                            except:
+                                command = input(TIME_ERROR)
+                                continue
+                            try:
+                                tournament_id = int(tournament_id)
+                            except:
+                                command = input(INT_ERROR)
+                                continue
+                            try:
+                                if home_team:
+                                    home_team = int(home_team)
+                            except:
+                                command = input(INT_ERROR)
+                                continue
+                            try:
+                                if away_team:
+                                    away_team = int(away_team)
+                            except:
+                                command = input(INT_ERROR)
+                                continue
+                            if (time == 'quit') or (home_team == 'quit') or (away_team == 'quit') or (tournament_name == 'quit'):
+                                command = 'quit'
+                                continue
+                            else:
+                                try:
+                                    create_game(time, tournament_id, home_team, away_team)
+                                    print("\nGame successfully created.")
+                                except:
+                                    print(GAME_ERROR_MESSAGE)
+                                    continue
+                        elif command == "5":
+                            # 5. Input scores
+                            continue
+                        elif command == "6":
+                            # 6. Set tournament location
+                            continue
                         elif command == "quit":
                             log_in_failed = False
                             break
@@ -339,9 +446,9 @@ def control_loop():
                                 except:
                                     command = input(TEAM_AGE_ERROR_MESSAGE)
                                     continue
-                                if age_max < age_min:
-                                    command = input(TEAM_MAX_AGE_ERROR_MESSAGE)
-                                    continue                                    
+                            if age_max < age_min:
+                                command = input(TEAM_MAX_AGE_ERROR_MESSAGE)
+                                continue                                    
 
                             # Check if creation of team was succesful.
                             # If so, break loop.

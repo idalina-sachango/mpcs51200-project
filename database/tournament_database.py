@@ -112,10 +112,9 @@ def create_relational_tables():
         "FOREIGN KEY(game_id) REFERENCES Games(id))")
 
     location_of_tournament = ("CREATE TABLE if not exists " +
-        "LocationOfTournament (tournament_id INT, game_id INT, " +
+        "LocationOfTournament (tournament_id INT," +
         "location VARCHAR(50),"
-        "FOREIGN KEY(tournament_id) REFERENCES Tournaments(id), " +
-        "FOREIGN KEY(game_id) REFERENCES Games(id))")
+        "FOREIGN KEY(tournament_id) REFERENCES Tournaments(id))")
 
     # Execute the statements
     statements = [tournament_registrations_create, players_on_teams_create,
@@ -128,7 +127,7 @@ def create_relational_tables():
 # Creates a tournament
 def create_tournament(name: str, eligible_gender: str, eligible_age_min: int, 
         eligible_age_max: int, start_date: datetime, end_date: datetime,
-        tournament_manager: int):
+        tournament_manager: int, location: str):
     conn, curs = get_conn_curs(DB_FILENAME)
 
     # Ensures that each input is of the correct type, throws an AssertionError
@@ -153,6 +152,14 @@ def create_tournament(name: str, eligible_gender: str, eligible_age_min: int,
         eligible_age_max, start_date, end_date, tournament_manager)
 
     curs.execute(tournament_insert, tournament_data)
+    tournament_id = curs.lastrowid
+
+    location_insert = ("INSERT INTO LocationofTournament (tournament_id, location) VALUES (?,?)")
+    location_data = (tournament_id, location)
+
+    curs.execute(location_insert, location_data)
+
+    commit_close(conn, curs)
     
     commit_close(conn, curs)
 
@@ -186,6 +193,7 @@ def create_game(time: datetime, tournament_id: int, home_team: int = None,
     curs.execute(game_tournament_insert, game_tournament_data)
 
     commit_close(conn, curs)
+
 
 # Creates a team in Teams table
 def create_team(name: str, team_gender: str, team_age_min: int,
@@ -298,6 +306,19 @@ def get_all_teams():
     commit_close(conn, curs)
 
     return teams
+
+def get_tournament_by_name(tournament_name: str):
+    # Is tournament name in database?
+    conn, curs = get_conn_curs(DB_FILENAME)
+    query = "SELECT * FROM Tournaments WHERE name = '{}'".format(tournament_name)
+
+    curs.execute(query)
+    rows = curs.fetchall()
+    if len(rows) > 0:
+        ids = rows[0][0]
+        return ids
+    else:
+        return False
 
 def get_tournament_by_id(tournament_id: int):
     conn, curs = get_conn_curs(DB_FILENAME)
@@ -543,6 +564,18 @@ def get_team_by_player(player_id: int):
 ###############################################################################
 # UPDATE
 ###############################################################################
+def update_tournament_location(tournament_id: int, 
+                    tournament_manager: int,
+                    location: str):
+    conn, curs = get_conn_curs(DB_FILENAME)
+    query = ("UPDATE Tournaments SET location = ?" + 
+    "WHERE tournament_id = ? and tournament_manager = ?")
+
+    data = [location, tournament_id, tournament_manager]
+    curs.execute(query, data)
+    commit_close(conn, curs)
+
+
 
 ###############################################################################
 # DELETE
