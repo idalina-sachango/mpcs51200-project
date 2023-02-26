@@ -16,6 +16,10 @@ def print_tournaments():
             f"{tournament['eligible_age_max']}\n")
         print(f"Date Range: ({str(tournament['start_date'])})-" +
             f"({tournament['end_date']})\n")
+        if (tournament['is_reg_open']):
+            print(f"Registration Open\n")
+        else:
+            print(f"Registration Closed\n")
         print("Registered Teams")
         print("-" * 20)
         for team in tournament['registered_teams']:
