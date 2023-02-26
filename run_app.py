@@ -3,7 +3,8 @@ from database.tournament_database import (
     setup_tournament_database, create_tournament,
     register_team_in_tournament, create_team, create_player,
     get_team_manager_id, get_team_ids, get_team_by_id, get_tournament_ids,
-    delete_player, get_player_ids, get_team_by_player, get_tournament_by_name)
+    delete_player, get_player_ids, get_team_by_player, get_tournament_by_name,
+    create_game)
 from backend.users import log_in
 from backend.tournaments import (print_teams, print_tournaments,
     check_team_eligibility)
@@ -103,6 +104,10 @@ Input game id:
 > '''
 GAME_SCORE_MENU = '''
 Input final game score:
+
+> '''
+GAME_LOCATION = '''
+Input field location:
 
 > '''
 GAME_ERROR_MESSAGE = '''
@@ -363,6 +368,7 @@ def control_loop():
                             tournament_name = input(TOURNAMENT_NAME_MENU)
                             home_team = input(GAME_HOMETEAM_MENU)
                             away_team = input(GAME_AWAYTEAM_MENU)
+                            location = input(GAME_LOCATION)
                             tournament_id = get_tournament_by_name(tournament_name)
                             try:
                                 time = datetime.strptime(time, 
@@ -392,7 +398,7 @@ def control_loop():
                                 continue
                             else:
                                 try:
-                                    create_game(time, tournament_id, home_team, away_team)
+                                    create_game(time, tournament_id, location, home_team, away_team)
                                     print("\nGame successfully created.")
                                 except:
                                     print(GAME_ERROR_MESSAGE)
