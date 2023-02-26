@@ -59,7 +59,7 @@ def create_basic_tables():
 
     games_create = ("CREATE TABLE if not exists Games " +
         "(id INTEGER PRIMARY KEY AUTOINCREMENT, home_team INT, " +
-        "away_team INT, time DATETIME," +
+        "away_team INT, time DATETIME, location VARCHAR(50), " +
         "FOREIGN KEY(home_team) REFERENCES Teams(id), " +
         "FOREIGN KEY(away_team) REFERENCES Teams(id))")
 
@@ -157,7 +157,7 @@ def create_tournament(name: str, eligible_gender: str, eligible_age_min: int,
 # Creates a game in Games table and connects it to an existing tournament in
 # GamesInTournaments table
 # Potentially raises sqlite errors, they must be caught by calling function
-def create_game(time: datetime, tournament_id: int, home_team: int = None, 
+def create_game(time: datetime, tournament_id: int, location: str, home_team: int = None, 
         away_team: int = None):
     conn, curs = get_conn_curs(DB_FILENAME)
 
@@ -165,6 +165,7 @@ def create_game(time: datetime, tournament_id: int, home_team: int = None,
     # with the provided message if not
     assert(isinstance(time, datetime)), "time must be a datetime"
     assert(isinstance(tournament_id, int)), "tournament_id must be an int"
+    assert(isinstance(location, str)), "location must be a string"
     assert(isinstance(home_team, int) or home_team is None), ("home_team " +
         "must be an int or None")
     assert(isinstance(away_team, int) or away_team is None), ("away_team " +
@@ -172,7 +173,7 @@ def create_game(time: datetime, tournament_id: int, home_team: int = None,
 
     game_insert = ("INSERT INTO Games (home_team, away_team, time, location) VALUES " +
         "(?,?,?,?)")
-    game_data = (home_team, away_team, time, "null")
+    game_data = (home_team, away_team, time, location)
 
     curs.execute(game_insert, game_data)
     game_id = curs.lastrowid
