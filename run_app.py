@@ -18,7 +18,7 @@ def control_loop():
     command = input(prompt.LOG_IN_MENU).strip()
     is_logged_in = False
     log_in_failed = False
-    while command != "quit":
+    while command != "quit" or "logout":
         if not is_logged_in:
             username = command
             password = input(prompt.PASSWORD_MENU)
@@ -28,7 +28,7 @@ def control_loop():
             else:
                 print("\nLog in successful.")
                 print(f"You are logged in as type: {user_type}")
-                while command != "quit":
+                while command != "quit" or "logout":
                     if user_type == "TournamentManager":
                         command = input(prompt.TOURNAMENT_MANAGER_MENU)
                         if command == "1":
@@ -221,7 +221,7 @@ def control_loop():
                                     continue
 
 
-                        elif command == "quit":
+                        elif command == "quit" or "logout":
                             log_in_failed = False
                             break
                         else:
@@ -444,7 +444,7 @@ def control_loop():
                                 print(prompt.REGISTER_ERROR_MESSAGE)
                                 continue 
 
-                        elif command == "quit":
+                        elif command == "quit" or "logout":
                             log_in_failed = False
                             break
                         else:
@@ -453,7 +453,7 @@ def control_loop():
                         command = input(prompt.OTHER_MENU)
                         if command == "1":
                             print_teams()
-                        elif command == "quit":
+                        elif command == "quit" or "logout":
                             log_in_failed = False
                             break
                         else:
