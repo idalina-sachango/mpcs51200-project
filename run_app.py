@@ -352,7 +352,7 @@ def control_loop():
                             # If so, break loop.
                             try:
                                 create_tournament(name, genders, int(age_min),
-                                    int(age_max), start_date, end_date, user_id, location)
+                                    int(age_max), start_date, end_date, int(user_id), location)
                                 print("\nTournament successfully created.")
                             except:
                                 print(TOURNAMENT_ERROR_MESSAGE)

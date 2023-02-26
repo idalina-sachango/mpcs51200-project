@@ -45,8 +45,8 @@ def create_basic_tables():
     tournaments_create = ("CREATE TABLE if not exists Tournaments " +
         "(id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(250), " +
         "eligible_gender VARCHAR(5), eligible_age_min INT, " +
-        "eligible_age_max INT, start_date DATETIME, end_date DATETIME," + 
-        "tournament_manager INT)")
+        "eligible_age_max INT, start_date DATETIME, end_date DATETIME, " + 
+        "tournament_manager INT, location VARCHAR(50))")
     
     teams_create = ("CREATE TABLE if not exists Teams " +
         "(id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(250), " +
@@ -59,10 +59,14 @@ def create_basic_tables():
 
     games_create = ("CREATE TABLE if not exists Games " +
         "(id INTEGER PRIMARY KEY AUTOINCREMENT, home_team INT, " +
-        "away_team INT, time DATETIME, " +
-        "location VARCHAR(50)," +
+        "away_team INT, time DATETIME," +
         "FOREIGN KEY(home_team) REFERENCES Teams(id), " +
         "FOREIGN KEY(away_team) REFERENCES Teams(id))")
+
+    locations_create = ("CREATE TABLE if not exists Locations " +
+        "(id INTEGER PRIMARY KEY AUTOINCREMENT," +
+        "location_name VARCHAR(50), location_city VARCHAR(50)," +
+        "location_state VARCHAR(50))")
 
     # Remove these lines for data persistence, but they are good for testing
     # curs.execute("DROP TABLE if exists TournamentRegistrations")
@@ -75,7 +79,7 @@ def create_basic_tables():
 
     # Execute the statements
     statements = [tournaments_create, teams_create, players_create, 
-        games_create]
+        games_create, locations_create]
     for statement in statements:
         curs.execute(statement)
 
@@ -111,11 +115,6 @@ def create_relational_tables():
         "FOREIGN KEY(tournament_id) REFERENCES Tournaments(id), " +
         "FOREIGN KEY(game_id) REFERENCES Games(id))")
 
-    location_of_tournament = ("CREATE TABLE if not exists " +
-        "LocationOfTournament (tournament_id INT," +
-        "location VARCHAR(50),"
-        "FOREIGN KEY(tournament_id) REFERENCES Tournaments(id))")
-
     # Execute the statements
     statements = [tournament_registrations_create, players_on_teams_create,
         games_in_tournaments_create]
@@ -133,6 +132,7 @@ def create_tournament(name: str, eligible_gender: str, eligible_age_min: int,
     # Ensures that each input is of the correct type, throws an AssertionError
     # with the provided message if not
     assert(isinstance(name, str)), "name must be a string"
+    assert(isinstance(location, str)), "location must be a string"
     assert(isinstance(eligible_gender, str)), ("eligible_gender must be a " +
         "string")
     assert(isinstance(eligible_age_min, int)), ("eligible_age_min must be an " +
@@ -146,16 +146,12 @@ def create_tournament(name: str, eligible_gender: str, eligible_age_min: int,
     assert(start_date < end_date), "start_date must be before end_date"
 
     tournament_insert = ("INSERT INTO Tournaments (name, eligible_gender, " +
-    "eligible_age_min, eligible_age_max, start_date, end_date, tournament_manager) VALUES " +
-    "(?,?,?,?,?,?,?)")
+    "eligible_age_min, eligible_age_max, start_date, end_date, tournament_manager, location) VALUES " +
+    "(?,?,?,?,?,?,?,?)")
     tournament_data = (name, eligible_gender, eligible_age_min,
-        eligible_age_max, start_date, end_date, tournament_manager)
+        eligible_age_max, start_date, end_date, tournament_manager, location)
 
     curs.execute(tournament_insert, tournament_data)
-
-
-    
-    
     commit_close(conn, curs)
 
 # Creates a game in Games table and connects it to an existing tournament in
