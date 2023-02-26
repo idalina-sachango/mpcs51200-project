@@ -152,14 +152,9 @@ def create_tournament(name: str, eligible_gender: str, eligible_age_min: int,
         eligible_age_max, start_date, end_date, tournament_manager)
 
     curs.execute(tournament_insert, tournament_data)
-    tournament_id = curs.lastrowid
 
-    location_insert = ("INSERT INTO LocationofTournament (tournament_id, location) VALUES (?,?)")
-    location_data = (tournament_id, location)
 
-    curs.execute(location_insert, location_data)
-
-    commit_close(conn, curs)
+    
     
     commit_close(conn, curs)
 
