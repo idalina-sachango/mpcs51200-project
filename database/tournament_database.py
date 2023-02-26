@@ -39,6 +39,11 @@ DB_FILENAME = "tournaments.db"
 # home_team: int, foreign key (Teams)
 # away_team: int, foreign key (Teams)
 # time: datetime, time that the game takes place
+
+# Scores table:
+# id: int, automatically increments on insert
+# home_team_score: int, score for the home team
+# away_team_score: int, score for the away team
 def create_basic_tables():
     conn, curs = get_conn_curs(DB_FILENAME)
 
@@ -62,6 +67,10 @@ def create_basic_tables():
         "away_team INT, time DATETIME, location VARCHAR(50), " +
         "FOREIGN KEY(home_team) REFERENCES Teams(id), " +
         "FOREIGN KEY(away_team) REFERENCES Teams(id))")
+    
+    scores_create = ("CREATE TABLE if not exists Scores " +
+        "(id INTEGER PRIMARY KEY AUTOINCREMENT, home_team_score INT, " +
+        "away_team_score INT)")
 
     locations_create = ("CREATE TABLE if not exists Locations " +
         "(id INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -79,7 +88,7 @@ def create_basic_tables():
 
     # Execute the statements
     statements = [tournaments_create, teams_create, players_create, 
-        games_create, locations_create]
+        games_create, scores_create, locations_create]
     for statement in statements:
         curs.execute(statement)
 
@@ -115,9 +124,14 @@ def create_relational_tables():
         "FOREIGN KEY(tournament_id) REFERENCES Tournaments(id), " +
         "FOREIGN KEY(game_id) REFERENCES Games(id))")
 
+    game_scores_create = ("CREATE TABLE if not exists GameScores" +
+        "(game_id INT, score_id INT, " +
+        "FOREIGN KEY(game_id) REFERENCES Games(id), " +
+        "FOREIGN KEY(score_id) REFERENCES Scores(id))")
+
     # Execute the statements
     statements = [tournament_registrations_create, players_on_teams_create,
-        games_in_tournaments_create]
+        games_in_tournaments_create, game_scores_create]
     for statement in statements:
         curs.execute(statement)
 
@@ -135,19 +149,20 @@ def create_tournament(name: str, eligible_gender: str, eligible_age_min: int,
     assert(isinstance(location, str)), "location must be a string"
     assert(isinstance(eligible_gender, str)), ("eligible_gender must be a " +
         "string")
-    assert(isinstance(eligible_age_min, int)), ("eligible_age_min must be an " +
-        "int")
-    assert(isinstance(eligible_age_max, int)), ("eligible_age_max must be an " +
-        "int")
-    assert(isinstance(tournament_manager, int)), ("tournament_manager must be an " +
-        "int")
+    assert(isinstance(eligible_age_min, int)), ("eligible_age_min must be " +
+        "an int")
+    assert(isinstance(eligible_age_max, int)), ("eligible_age_max must be " +
+        "an int")
+    assert(isinstance(tournament_manager, int)), ("tournament_manager must " +
+        "be an int")
     assert(isinstance(start_date, datetime)), "start_date must be a datetime"
     assert(isinstance(end_date, datetime)), "end_date must be a datetime"
     assert(start_date < end_date), "start_date must be before end_date"
 
     tournament_insert = ("INSERT INTO Tournaments (name, eligible_gender, " +
-    "eligible_age_min, eligible_age_max, start_date, end_date, tournament_manager, location) VALUES " +
-    "(?,?,?,?,?,?,?,?)")
+    "eligible_age_min, eligible_age_max, start_date, end_date, " +
+    "tournament_manager, location) VALUES (?,?,?,?,?,?,?,?)")
+
     tournament_data = (name, eligible_gender, eligible_age_min,
         eligible_age_max, start_date, end_date, tournament_manager, location)
 
@@ -157,8 +172,8 @@ def create_tournament(name: str, eligible_gender: str, eligible_age_min: int,
 # Creates a game in Games table and connects it to an existing tournament in
 # GamesInTournaments table
 # Potentially raises sqlite errors, they must be caught by calling function
-def create_game(time: datetime, tournament_id: int, location: str, home_team: int = None, 
-        away_team: int = None):
+def create_game(time: datetime, tournament_id: int, location: str, 
+        home_team: int = None, away_team: int = None):
     conn, curs = get_conn_curs(DB_FILENAME)
 
     # Ensures that each input is of the correct type, throws an AssertionError
@@ -171,8 +186,8 @@ def create_game(time: datetime, tournament_id: int, location: str, home_team: in
     assert(isinstance(away_team, int) or away_team is None), ("away_team " +
         "must be an int or None")
 
-    game_insert = ("INSERT INTO Games (home_team, away_team, time, location) VALUES " +
-        "(?,?,?,?)")
+    game_insert = ("INSERT INTO Games (home_team, away_team, time, " +
+        "location) VALUES (?,?,?,?)")
     game_data = (home_team, away_team, time, location)
 
     curs.execute(game_insert, game_data)
@@ -251,6 +266,29 @@ def register_team_in_tournament(tournament_id: int, team_id: int):
     tournament_team_data = (tournament_id, team_id)
 
     curs.execute(tournament_team_insert, tournament_team_data)
+
+    commit_close(conn, curs)
+
+def create_game_score(game_id: int, home_team_score: int, 
+        away_team_score: int):
+    conn, curs = get_conn_curs(DB_FILENAME)
+
+    assert(isinstance(game_id, int)), "game_id must be an int"
+    assert(isinstance(home_team_score, int)), "home_team_score must be an int"
+    assert(isinstance(away_team_score, int)), "away_team_score must be an int"
+
+    score_insert = ("INSERT INTO Scores (home_team_score, away_team_score) " +
+        "VALUES (?,?)")
+    score_data = (home_team_score, away_team_score)
+
+    curs.execute(score_insert, score_data)
+    score_id = curs.lastrowid
+
+    game_score_insert = ("INSERT INTO GameScores (game_id, score_id) " +
+        "VALUES (?,?)")
+    game_score_data = (game_id, score_id)
+
+    curs.execute(game_score_insert, game_score_data)
 
     commit_close(conn, curs)
 
