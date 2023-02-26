@@ -4,10 +4,12 @@ from database.tournament_database import (
     register_team_in_tournament, create_team, create_player,
     get_team_manager_id, get_team_ids, get_team_by_id, get_tournament_ids,
     delete_player, get_player_ids, get_team_by_player, get_tournament_by_name,
-    create_game, get_tournament_by_id, get_tournament_manager_id, close_reg)
+    create_game, get_tournament_by_id, get_tournament_manager_id, close_reg,
+    create_game_score)
 from backend.users import log_in
-from backend.tournaments import (print_teams, print_tournaments,
-    check_team_eligibility)
+from backend.tournaments import (
+    print_teams, print_all_tournaments, print_manager_tournaments,
+    print_tournament_games, check_team_eligibility)
 from datetime import datetime
 import menu_prompts.prompts as prompt
 
@@ -32,7 +34,7 @@ def control_loop():
                         if command == "1":
                             print_teams()
                         elif command == "2":
-                            print_tournaments()
+                            print_all_tournaments()
                         elif command == "3":
                             # Create a tournament
                             name = input(prompt.TOURNAMENT_NAME_MENU)
@@ -148,7 +150,40 @@ def control_loop():
                                     continue
                         elif command == "5":
                             # 5. Input scores
-                            continue
+                            print_manager_tournaments(user_id)
+                            tournament = input(prompt.SELECT_TOURNAMENT_MENU)
+                            try:
+                                tournament_int = int(tournament)
+                            except ValueError:
+                                print('Tournament ID input must be an integer.')
+                                break
+                            print_tournament_games(tournament_int)
+                            game = input(prompt.SELECT_GAME_MENU)
+                            try:
+                                game_int = int(game)
+                            except ValueError:
+                                print('Game ID input must be an integer.')
+                                break
+                            home_team_score = input(prompt.INPUT_HOME_TEAM_SCORE)
+                            try:
+                                home_team_score_int = int(home_team_score)
+                            except ValueError:
+                                print('Home team score input must be an integer.')
+                                break
+                            away_team_score = input(prompt.INPUT_AWAY_TEAM_SCORE)
+                            try:
+                                away_team_score_int = int(away_team_score)
+                            except ValueError:
+                                print('Away team score input must be an integer.')
+                                break
+                            try:
+                                create_game_score(game_int, home_team_score_int, 
+                                                  away_team_score_int)
+                            except Exception as err:
+                                print("There was an error:")
+                                print(err)
+                                command = input(prompt.SCORE_ERROR_MESSAGE)
+                            print("Score created successfully.")
                         elif command == "6":
                             # 6. Set tournament location
                             continue

@@ -40,6 +40,7 @@ DB_FILENAME = "tournaments.db"
 # home_team: int, foreign key (Teams)
 # away_team: int, foreign key (Teams)
 # time: datetime, time that the game takes place
+# location: string, where the game takes place
 
 # Scores table:
 # id: int, automatically increments on insert
@@ -354,6 +355,22 @@ def get_tournament_by_name(tournament_name: str):
     else:
         return False
 
+def get_tournaments_by_manager(manager_id: int):
+    conn, curs = get_conn_curs(DB_FILENAME)
+
+    curs.execute("SELECT * FROM Tournaments WHERE tournament_manager = ?",
+                 [manager_id])
+    rows = curs.fetchall()
+
+    tournaments = {}
+    for row in rows:
+        tournament_id = row[0]
+        tournaments[tournament_id] = get_tournament_by_id(tournament_id)
+
+    commit_close(conn, curs)
+
+    return tournaments
+
 def get_tournament_by_id(tournament_id: int):
     conn, curs = get_conn_curs(DB_FILENAME)
 
@@ -392,6 +409,48 @@ def get_tournament_by_id(tournament_id: int):
     commit_close(conn, curs)
 
     return tournament
+
+def get_games_by_tournament(tournament_id: int):
+    conn, curs = get_conn_curs(DB_FILENAME)
+
+    select_games = ("SELECT * FROM GamesInTournaments " +
+        "WHERE tournament_id = ?")
+    select_data = [tournament_id]
+
+    curs.execute(select_games, select_data)
+    games_in_tournaments = curs.fetchall()
+
+    games = {}
+    for relation in games_in_tournaments:
+        game_id = relation[1]
+        games[game_id] = get_game_by_id(game_id)
+
+    commit_close(conn, curs)
+
+    return games
+
+def get_game_by_id(game_id: int):
+    conn, curs = get_conn_curs(DB_FILENAME)
+
+    curs.execute("SELECT * FROM Games WHERE id = ?", [game_id])
+    rows = curs.fetchall()
+
+    if len(rows) < 1:
+        raise Exception("Game does not exist")
+    
+    game_info = rows[0]
+
+    game = {
+        "game_id": game_info[0],
+        "home_team": game_info[1],
+        "away_team": game_info[2],
+        "time": game_info[3],
+        "location": game_info[4]
+    }
+
+    commit_close(conn, curs)
+
+    return game
 
 def get_team_by_id(team_id: int):
     conn, curs = get_conn_curs(DB_FILENAME)
@@ -480,7 +539,6 @@ def get_tournament_manager_id(tournament_id: int):
     commit_close(conn, curs)
 
     return tounament_manager_id
-   
 
 def get_team_ids():
     conn, curs = get_conn_curs(DB_FILENAME)
@@ -654,6 +712,24 @@ def delete_player(player_id: int):
 
     commit_close(conn, curs)
 
+# Drops all tables
+def clear_tournament_database():
+    conn, curs = get_conn_curs(DB_FILENAME)
+
+    curs.execute("DROP TABLE if exists TournamentRegistrations")
+    curs.execute("DROP TABLE if exists PlayersOnTeams")
+    curs.execute("DROP TABLE if exists GamesInTournaments")
+    curs.execute("DROP TABLE if exists GameScores")
+    curs.execute("DROP TABLE if exists Locations")
+    curs.execute("DROP TABLE if exists Scores")
+    curs.execute("DROP TABLE if exists Players")
+    curs.execute("DROP TABLE if exists Games")
+    curs.execute("DROP TABLE if exists Teams")
+    curs.execute("DROP TABLE if exists Tournaments")
+
+    commit_close(conn, curs)
+
+    
 ###############################################################################
 # SETUP
 ###############################################################################

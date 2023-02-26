@@ -77,16 +77,16 @@ Enter the location of the Tournament. Must be written as a city, state combinati
 GAME_TIME_MENU = '''
 Enter start time of game:
 
->'''
+> '''
 GAME_HOMETEAM_MENU = '''
 Enter home team id:
 
->'''
+> '''
 
 GAME_AWAYTEAM_MENU = '''
 Enter away team id:
 
->'''
+> '''
 GAME_ID_MENU = '''
 Input game id:
 
@@ -269,5 +269,37 @@ Enter a number to begin the corresponding action.
 Type 'quit' to quit.
 
 1. View existing teams
+
+> '''
+SELECT_TOURNAMENT_MENU = '''
+Enter the ID of the tournament for which you would like to enter scores.
+If there are no tournaments printed above, then you have not created any
+tournaments yet.
+
+> '''
+SELECT_GAME_MENU = '''
+Enter the ID of the game for which you would like to enter scores.
+If there are no games printed above, then there are no games in the selected
+tournament.
+
+> '''
+INPUT_HOME_TEAM_SCORE = '''
+Enter the score for the home team.
+
+> '''
+INPUT_AWAY_TEAM_SCORE = '''
+Enter the score for the away team.
+
+> '''
+SCORE_ERROR_MESSAGE = '''
+Error in creating score. Press enter to return to menu.
+
+> '''
+
+### Test prompts
+TEST_WARNING = '''
+WARNING: Running this test will erase all data in the database in order to 
+create new testing data. Please enter the word \'confirm\' to confirm that 
+you would like to do this.
 
 > '''

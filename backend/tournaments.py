@@ -1,15 +1,20 @@
-from database.tournament_database import get_all_teams, get_all_tournaments, get_team_age_range, get_tournament_by_id, get_team_by_id, get_team_gender_range
+from database.tournament_database import (
+    get_all_teams, 
+    get_all_tournaments, 
+    get_team_age_range, 
+    get_tournament_by_id, 
+    get_team_by_id, 
+    get_team_gender_range,
+    get_tournaments_by_manager,
+    get_games_by_tournament)
 from backend.users import print_user
 
 LINE_DELIMITER = "*" * 40
 
-def print_tournaments():
-    tournaments = get_all_tournaments()
-    if not tournaments:
-        print("\nNo tournaments currently.")
-
+def print_tournaments(tournaments: dict):
     for tournament in tournaments.values():
         print(LINE_DELIMITER)
+        print(f"Tournament ID: {tournament['tournament_id']}\n")
         print(f"Tournament Name: {tournament['name']}\n")
         print(f"Eligible Gender: {tournament['eligible_gender']}\n")
         print(f"Eligible Age Range: {tournament['eligible_age_min']}-" +
@@ -25,6 +30,37 @@ def print_tournaments():
         for team in tournament['registered_teams']:
             print(f"Team Name: {team['name']}")
         print(LINE_DELIMITER)
+
+def print_games(games: dict):
+    for game in games.values():
+        print(LINE_DELIMITER)
+        print(f"Game ID: {game['game_id']}\n")
+        print(f"Home Team ID: {game['home_team']}\n")
+        print(f"Away Team ID: {game['away_team']}\n")
+        print(f"Time: {game['time']}\n")
+        print(f"Location: {game['location']}")
+        print(LINE_DELIMITER)
+
+def print_all_tournaments():
+    tournaments = get_all_tournaments()
+    if not tournaments:
+        print("\nNo tournaments currently.")
+
+    print_tournaments(tournaments)
+
+def print_manager_tournaments(manager_id: int):
+    tournaments = get_tournaments_by_manager(manager_id)
+    if not tournaments:
+        print("\nNo tournaments currently.")
+
+    print_tournaments(tournaments)
+
+def print_tournament_games(tournament_id: int):
+    games = get_games_by_tournament(tournament_id)
+    if not games:
+        print("\nNo games currently.")
+
+    print_games(games)
 
 def print_teams():
     teams = get_all_teams()
