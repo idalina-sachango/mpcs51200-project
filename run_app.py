@@ -4,7 +4,7 @@ from database.tournament_database import (
     register_team_in_tournament, create_team, create_player,
     get_team_manager_id, get_team_ids, get_team_by_id, get_tournament_ids,
     delete_player, get_player_ids, get_team_by_player, get_tournament_by_name,
-    create_game)
+    create_game, get_tournament_by_id, get_tournament_manager_id, close_reg)
 from backend.users import log_in
 from backend.tournaments import (print_teams, print_tournaments,
     check_team_eligibility)
@@ -152,6 +152,40 @@ def control_loop():
                         elif command == "6":
                             # 6. Set tournament location
                             continue
+                        elif command == "7":
+                            # 7. Close registration
+                            tournament_id = input(prompt.CLOSE_REG_MENU)
+                            if tournament_id == 'quit':
+                                command = 'quit'
+                                continue
+                            else:
+                                try:
+                                    tournament_id = int(tournament_id)
+                                except:
+                                    command = input(prompt.TOURNAMENT_ID_ERROR_MESSAGE)
+                                    continue
+                                
+                                # Check if tournament_id is valid
+                                tournament_ids = get_tournament_ids()
+                                if not tournament_id in tournament_ids:
+                                    command = input(prompt.TOURNAMENT_ID_ERROR_MESSAGE)
+                                    continue
+                                
+                                # Check if tournament belongs to manager
+                                if not get_tournament_manager_id(tournament_id) == user_id:
+                                    command = input(prompt.NOT_AUTHORIZED_ERROR_MESSAGE)
+                                    continue
+
+                                # Check if close registration was successful.
+                                # If so, break loop.
+                                try:
+                                    close_reg(tournament_id)
+                                    print("\nRegistration closed.")
+                                except:
+                                    print(prompt.CLOSE_ERROR_MESSAGE)
+                                    continue
+
+
                         elif command == "quit":
                             log_in_failed = False
                             break
@@ -353,6 +387,12 @@ def control_loop():
                                 tournament_ids = get_tournament_ids()
                                 if not tournament_id in tournament_ids:
                                     command = input(prompt.TOURNAMENT_ID_ERROR_MESSAGE)
+                                    continue
+
+                                # Check if registration is open
+                                is_reg_open = get_tournament_by_id(tournament_id)["is_reg_open"]
+                                if not is_reg_open:
+                                    command = input(prompt.TOURNAMENT_OPEN_ERROR_MESSAGE)
                                     continue
                                 
                                 # Check if all team members meet gender and age requirments

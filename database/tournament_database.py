@@ -19,6 +19,7 @@ DB_FILENAME = "tournaments.db"
 # eligible_age_max: int, maximum eligible age for tournament
 # start_date: datetime, starting date and time of the tournament
 # end_date: datetime, ending date and time of the tournament
+# is_reg_open: int, 0 for registration closed, 1 for open
 #
 # Teams table:
 # id: int, automatically increments on insert
@@ -46,7 +47,7 @@ def create_basic_tables():
         "(id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(250), " +
         "eligible_gender VARCHAR(5), eligible_age_min INT, " +
         "eligible_age_max INT, start_date DATETIME, end_date DATETIME, " + 
-        "tournament_manager INT, location VARCHAR(50))")
+        "tournament_manager INT, location VARCHAR(50), is_reg_open INT)")
     
     teams_create = ("CREATE TABLE if not exists Teams " +
         "(id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(250), " +
@@ -145,11 +146,13 @@ def create_tournament(name: str, eligible_gender: str, eligible_age_min: int,
     assert(isinstance(end_date, datetime)), "end_date must be a datetime"
     assert(start_date < end_date), "start_date must be before end_date"
 
+    is_reg_open = 1
+
     tournament_insert = ("INSERT INTO Tournaments (name, eligible_gender, " +
-    "eligible_age_min, eligible_age_max, start_date, end_date, tournament_manager, location) VALUES " +
-    "(?,?,?,?,?,?,?,?)")
+    "eligible_age_min, eligible_age_max, start_date, end_date, tournament_manager, location, is_reg_open) VALUES " +
+    "(?,?,?,?,?,?,?,?,?)")
     tournament_data = (name, eligible_gender, eligible_age_min,
-        eligible_age_max, start_date, end_date, tournament_manager, location)
+        eligible_age_max, start_date, end_date, tournament_manager, location, is_reg_open)
 
     curs.execute(tournament_insert, tournament_data)
     commit_close(conn, curs)
@@ -343,6 +346,7 @@ def get_tournament_by_id(tournament_id: int):
         "eligible_age_max": tournament_info[4],
         "start_date": tournament_info[5],
         "end_date": tournament_info[6],
+        "is_reg_open": tournament_info[9],
         "registered_teams": teams
     }
 
@@ -422,6 +426,22 @@ def get_team_manager_id(team_id: int):
     commit_close(conn, curs)
 
     return team_manager_id
+
+def get_tournament_manager_id(tournament_id: int):
+    conn, curs = get_conn_curs(DB_FILENAME)
+
+    curs.execute("SELECT * FROM Tournaments WHERE id = ?", [tournament_id])
+    rows = curs.fetchall()
+
+    if len(rows) < 1:
+        raise Exception("Tournament does not exist")
+
+    tounament_manager_id = rows[0][7]
+
+    commit_close(conn, curs)
+
+    return tounament_manager_id
+   
 
 def get_team_ids():
     conn, curs = get_conn_curs(DB_FILENAME)
@@ -567,7 +587,12 @@ def update_tournament_location(tournament_id: int,
     curs.execute(query, data)
     commit_close(conn, curs)
 
+def close_reg(tournament_id: int):
+    conn, curs = get_conn_curs(DB_FILENAME)
 
+    curs.execute("UPDATE Tournaments SET is_reg_open = 0 WHERE id = {}".format(tournament_id))
+
+    commit_close(conn, curs)
 
 ###############################################################################
 # DELETE

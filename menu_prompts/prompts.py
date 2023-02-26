@@ -17,6 +17,7 @@ Type 'quit' to quit.
 4. Create game
 5. Input scores
 6. Set tournament location
+7. Close registration
 
 > '''
 TOURNAMENT_NAME_MENU = '''
@@ -220,6 +221,21 @@ Enter the tournament id:
 > '''
 TOURNAMENT_ID_ERROR_MESSAGE = '''
 Invalid tournament id entered. Returning to team menu. 
+Press 'enter' to continue.
+
+> '''
+TOURNAMENT_OPEN_ERROR_MESSAGE = '''
+Tournament registration closed. Returning to team menu. 
+Press 'enter' to continue.
+
+> '''
+CLOSE_REG_MENU = '''
+Enter the tournament id:
+
+> '''
+CLOSE_ERROR_MESSAGE = '''
+Registration cannot be closed.
+Returning to team menu. 
 Press 'enter' to continue.
 
 > '''
