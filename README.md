@@ -2,7 +2,7 @@
 
 To run the app, run `python3 run_app.py`.
 
-To run tests, run `python3 -m unittest test.name_of_test_file`. For example, `python3 -m unittest test.test_create_scores`. WARNING: Tests will delete the existing data in the databse in order to run tests which change the database.
+To run tests, run `python3 -m unittest test.name_of_test_file`. For example, `python3 -m unittest test.test_games`. WARNING: Tests will delete the existing data in the databse in order to run tests which change the database.
 
 See database/users.csv for possible users
 This is a tournament management software with some features.
