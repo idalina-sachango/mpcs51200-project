@@ -298,7 +298,16 @@ Error in creating score. Press enter to return to menu.
 > '''
 
 ### Test prompts
-TEST_WARNING = '''
+TEST_WARNING_GAME_SCORES = '''
+Test: Create Game Scores
+WARNING: Running this test will erase all data in the database in order to 
+create new testing data. Please enter the word \'confirm\' to confirm that 
+you would like to do this.
+
+> '''
+
+TEST_WARNING_GAME_CREATION = '''
+Test: Create Game
 WARNING: Running this test will erase all data in the database in order to 
 create new testing data. Please enter the word \'confirm\' to confirm that 
 you would like to do this.
