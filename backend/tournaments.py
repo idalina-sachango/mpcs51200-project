@@ -9,37 +9,78 @@ from database.tournament_database import (
     get_games_by_tournament)
 from backend.users import print_user
 
-LINE_DELIMITER = "*" * 40
+LONG_LINE_DELIMITER = "*" * 40
+MEDIUM_LINE_DELIMITER = "=" * 30
+SHORT_LINE_DELIMITER = "-" * 20
 
 def print_tournaments(tournaments: dict):
     for tournament in tournaments.values():
-        print(LINE_DELIMITER)
-        print(f"Tournament ID: {tournament['tournament_id']}\n")
-        print(f"Tournament Name: {tournament['name']}\n")
-        print(f"Eligible Gender: {tournament['eligible_gender']}\n")
+        print(LONG_LINE_DELIMITER)
+        print(f"Tournament ID: {tournament['tournament_id']}")
+        print(f"Tournament Name: {tournament['name']}")
+        print(f"Eligible Gender: {tournament['eligible_gender']}")
         print(f"Eligible Age Range: {tournament['eligible_age_min']}-" +
-            f"{tournament['eligible_age_max']}\n")
+            f"{tournament['eligible_age_max']}")
         print(f"Date Range: ({str(tournament['start_date'])})-" +
-            f"({tournament['end_date']})\n")
+            f"({tournament['end_date']})")
         if (tournament['is_reg_open']):
-            print(f"Registration Open\n")
+            print(f"Registration Open")
         else:
-            print(f"Registration Closed\n")
+            print(f"Registration Closed")
         print("Registered Teams")
-        print("-" * 20)
+        print(SHORT_LINE_DELIMITER)
         for team in tournament['registered_teams']:
             print(f"Team Name: {team['name']}")
-        print(LINE_DELIMITER)
+        print(LONG_LINE_DELIMITER)
 
 def print_games(games: dict):
     for game in games.values():
-        print(LINE_DELIMITER)
-        print(f"Game ID: {game['game_id']}\n")
-        print(f"Home Team ID: {game['home_team']}\n")
-        print(f"Away Team ID: {game['away_team']}\n")
-        print(f"Time: {game['time']}\n")
+        print(LONG_LINE_DELIMITER)
+        print(f"Game ID: {game['game_id']}")
+        print(f"Home Team")
+        home_team_id = game['home_team']
+        print(MEDIUM_LINE_DELIMITER)
+        if home_team_id:
+            print_team(get_team_by_id(home_team_id))
+        else:
+            print("No home team yet.")
+        print(MEDIUM_LINE_DELIMITER)
+        print(f"Away Team")
+        away_team_id = game['away_team']
+        print(MEDIUM_LINE_DELIMITER)
+        if away_team_id:
+            print_team(get_team_by_id(away_team_id))
+        else:
+            print("No away team yet.")
+        print(MEDIUM_LINE_DELIMITER)
+        print(f"Time: {game['time']}")
         print(f"Location: {game['location']}")
-        print(LINE_DELIMITER)
+        print(LONG_LINE_DELIMITER)
+
+def print_team(team: dict):
+    print(f"Team ID: {team['team_id']}")
+    print(f"Team Name: {team['name']}")
+    print(f"Team Gender: {team['team_gender']}")
+    print(f"Team Age Range: {team['team_age_min']}-" +
+        f"{team['team_age_max']}")
+    print("Team Manager: ")
+    print_user(team["team_manager"])
+    print("Roster")
+    print(SHORT_LINE_DELIMITER)
+    print_roster(team["roster"])
+
+def print_teams(teams: dict):
+    for team in teams.values():
+        print(LONG_LINE_DELIMITER)
+        print_team(team)
+        print(LONG_LINE_DELIMITER)
+
+def print_all_teams():
+    teams = get_all_teams()
+    if not teams:
+        print("\nNo teams currently.")
+
+    print_teams(teams)
 
 def print_all_tournaments():
     tournaments = get_all_tournaments()
@@ -61,26 +102,6 @@ def print_tournament_games(tournament_id: int):
         print("\nNo games currently.")
 
     print_games(games)
-
-def print_teams():
-    teams = get_all_teams()
-    if not teams:
-        print("\nNo teams currently.")
-
-    for team in teams.values():
-        print(LINE_DELIMITER)
-        print(f"Team ID: {team['team_id']}\n")
-        print(f"Team Name: {team['name']}\n")
-        print(f"Team Gender: {team['team_gender']}\n")
-        print(f"Team Age Range: {team['team_age_min']}-" +
-            f"{team['team_age_max']}\n")
-        print("Team Manager: ")
-        print_user(team["team_manager"])
-        print("")
-        print("Roster")
-        print("-" * 20)
-        print_roster(team["roster"])
-        print(LINE_DELIMITER)
 
 # Roster is a list of dicts which are players
 def print_roster(roster: list):

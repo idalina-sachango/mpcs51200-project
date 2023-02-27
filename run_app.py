@@ -8,7 +8,7 @@ from database.tournament_database import (
     create_game_score)
 from backend.users import log_in
 from backend.tournaments import (
-    print_teams, print_all_tournaments, print_manager_tournaments,
+    print_all_teams, print_all_tournaments, print_manager_tournaments,
     print_tournament_games, check_team_eligibility)
 from datetime import datetime
 import menu_prompts.prompts as prompt
@@ -32,7 +32,7 @@ def control_loop():
                     if user_type == "TournamentManager":
                         command = input(prompt.TOURNAMENT_MANAGER_MENU)
                         if command == "1":
-                            print_teams()
+                            print_all_teams()
                         elif command == "2":
                             print_all_tournaments()
                         elif command == "3":
@@ -229,7 +229,7 @@ def control_loop():
                     elif user_type == "TeamManager":
                         command = input(prompt.TEAM_MANAGER_MENU)
                         if command == "1":
-                            print_teams()
+                            print_all_teams()
                         elif command == "2":
                             # Create a team
                             name = input(prompt.TEAM_NAME_MENU)
@@ -452,7 +452,7 @@ def control_loop():
                     else:
                         command = input(prompt.OTHER_MENU)
                         if command == "1":
-                            print_teams()
+                            print_all_teams()
                         elif command == "quit" or "logout":
                             log_in_failed = False
                             break
