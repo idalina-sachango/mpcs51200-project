@@ -18,6 +18,7 @@ Type 'quit' to quit.
 5. Input scores
 6. Set tournament location
 7. Close registration
+8. Show tournament status by id
 
 > '''
 TOURNAMENT_NAME_MENU = '''

@@ -6,7 +6,8 @@ from database.tournament_database import (
     get_team_by_id, 
     get_team_gender_range,
     get_tournaments_by_manager,
-    get_games_by_tournament)
+    get_games_by_tournament,
+    get_score_by_game)
 from backend.users import print_user
 
 LONG_LINE_DELIMITER = "*" * 40
@@ -41,7 +42,7 @@ def print_games(games: dict):
         home_team_id = game['home_team']
         print(MEDIUM_LINE_DELIMITER)
         if home_team_id:
-            print_team(get_team_by_id(home_team_id))
+            print_team(get_team_by_id(home_team_id))       
         else:
             print("No home team yet.")
         print(MEDIUM_LINE_DELIMITER)
@@ -55,6 +56,12 @@ def print_games(games: dict):
         print(MEDIUM_LINE_DELIMITER)
         print(f"Time: {game['time']}")
         print(f"Location: {game['location']}")
+
+        score = get_score_by_game(game['game_id'])
+        if score:
+            print(f"Hometeam score: {score['homescore']}")
+            print(f"Awayteam score: {score['awayscore']}")
+
         print(LONG_LINE_DELIMITER)
 
 def print_team(team: dict):

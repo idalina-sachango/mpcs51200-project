@@ -88,6 +88,8 @@ def create_basic_tables():
     # curs.execute("DROP TABLE if exists Teams")
     # curs.execute("DROP TABLE if exists Tournaments")
 
+    # clear_tournament_database()
+
     # Execute the statements
     statements = [tournaments_create, teams_create, players_create, 
         games_create, scores_create, locations_create]
@@ -409,6 +411,42 @@ def get_tournament_by_id(tournament_id: int):
     commit_close(conn, curs)
 
     return tournament
+
+def get_score_by_game(game_id: int):
+    conn, curs = get_conn_curs(DB_FILENAME)
+
+    select = ("SELECT * FROM GameScores " +
+        "WHERE game_id = ?")
+    select_data = [game_id]
+
+    curs.execute(select, select_data)
+    score_id = curs.fetchall()
+
+    commit_close(conn, curs)
+
+    # print(f"score id {score_id}")
+
+    # use most recent score
+    if score_id:
+        return get_score_by_id(score_id[-1][1]) 
+    else:
+        return None
+
+def get_score_by_id(score_id: int):
+    conn, curs = get_conn_curs(DB_FILENAME)
+
+    select = ("SELECT * FROM Scores " +
+        "WHERE id = ?")
+    select_data = [score_id]
+
+    curs.execute(select, select_data)
+    score = curs.fetchall()
+
+    commit_close(conn, curs)
+
+    # print(score)
+
+    return {"homescore": score[0][1], "awayscore": score[0][2]}
 
 def get_games_by_tournament(tournament_id: int):
     conn, curs = get_conn_curs(DB_FILENAME)

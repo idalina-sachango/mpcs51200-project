@@ -5,7 +5,7 @@ from database.tournament_database import (
     get_team_manager_id, get_team_ids, get_team_by_id, get_tournament_ids,
     delete_player, get_player_ids, get_team_by_player, get_tournament_by_name,
     create_game, get_tournament_by_id, get_tournament_manager_id, close_reg,
-    create_game_score)
+    create_game_score, get_score_by_game)
 from backend.users import log_in
 from backend.tournaments import (
     print_all_teams, print_all_tournaments, print_manager_tournaments,
@@ -219,7 +219,29 @@ def control_loop():
                                 except:
                                     print(prompt.CLOSE_ERROR_MESSAGE)
                                     continue
+                        elif command == "8":
+                            # 8. Show tournament status by id
+                            tournament_id = input(prompt.CLOSE_REG_MENU)
+                            if tournament_id == 'quit':
+                                command = 'quit'
+                                continue
+                            else:
+                                try:
+                                    tournament_id = int(tournament_id)
+                                except:
+                                    command = input(prompt.TOURNAMENT_ID_ERROR_MESSAGE)
+                                    continue
+                                
+                                # Check if tournament_id is valid
+                                tournament_ids = get_tournament_ids()
+                                if not tournament_id in tournament_ids:
+                                    command = input(prompt.TOURNAMENT_ID_ERROR_MESSAGE)
+                                    continue
 
+                                print_tournament_games(tournament_id)
+                        # elif command == "9":
+                        #     id = input()
+                        #     get_score_by_game(id)
 
                         elif command == "quit" or "logout":
                             log_in_failed = False
