@@ -146,6 +146,11 @@ class TestCreateGame(unittest.TestCase):
         "Austin, Texas",
         None,
         2)
+        create_game(datetime.strptime("12:00","%H:%M"),
+        int(get_tournament_by_name("Test Name")),
+        "Austin, Texas",
+        None,
+        None)
 
     def test_not_int(self):
         self.assertRaises(AssertionError, 
