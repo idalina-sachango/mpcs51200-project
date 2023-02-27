@@ -432,6 +432,7 @@ def get_score_by_game(game_id: int):
     else:
         return None
 
+
 def get_score_by_id(score_id: int):
     conn, curs = get_conn_curs(DB_FILENAME)
 
