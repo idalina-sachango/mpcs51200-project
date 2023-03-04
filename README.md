@@ -1,10 +1,22 @@
 # mpcs51200-project
 
+To create and activate a virtual environment, run:
+`python3 -m venv venv`
+`source venv/bin/activate`
+
+To download simple-term-menu in your environment, subsequently run:
+`python3 -m pip install simple-term-menu`
+
+Source: https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/
+
 To run the app, run `python3 run_app.py`.
+
+To run the app with our new and improved menu, run `python3 new_menu.py`.
 
 To run tests, run `python3 -m unittest test.name_of_test_file`. For example, `python3 -m unittest test.test_games`. WARNING: Tests will delete the existing data in the databse in order to run tests which change the database.
 
 See database/users.csv for possible users
+
 This is a tournament management software with some features.
 The files in database folder are to create two databases(.db) users.db and tournaments.db with multiple types of users like tournament manager, team manager, players and fans.
 The separate functions are to take care of constraints, restrictions and to maintain order.

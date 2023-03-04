@@ -15,6 +15,7 @@ MEDIUM_LINE_DELIMITER = "=" * 30
 SHORT_LINE_DELIMITER = "-" * 20
 
 def print_tournaments(tournaments: dict):
+    print("*** VIEWING TOURNAMENTS ***")
     for tournament in tournaments.values():
         print(LONG_LINE_DELIMITER)
         print(f"Tournament ID: {tournament['tournament_id']}")
@@ -35,6 +36,7 @@ def print_tournaments(tournaments: dict):
         print(LONG_LINE_DELIMITER)
 
 def print_games(games: dict):
+    print("*** VIEWING GAMES ***")
     for game in games.values():
         print(LONG_LINE_DELIMITER)
         print(f"Game ID: {game['game_id']}")
@@ -63,6 +65,13 @@ def print_games(games: dict):
             print(f"Awayteam score: {score['awayscore']}")
 
         print(LONG_LINE_DELIMITER)
+        
+def print_teams(teams: dict):
+    print("*** VIEWING TEAMS ***")
+    for team in teams.values():
+        print(LONG_LINE_DELIMITER)
+        print_team(team)
+        print(LONG_LINE_DELIMITER)
 
 def print_team(team: dict):
     print(f"Team ID: {team['team_id']}")
@@ -75,12 +84,6 @@ def print_team(team: dict):
     print("Roster")
     print(SHORT_LINE_DELIMITER)
     print_roster(team["roster"])
-
-def print_teams(teams: dict):
-    for team in teams.values():
-        print(LONG_LINE_DELIMITER)
-        print_team(team)
-        print(LONG_LINE_DELIMITER)
 
 def print_all_teams():
     teams = get_all_teams()
