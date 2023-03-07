@@ -74,11 +74,6 @@ def create_basic_tables():
         "(id INTEGER PRIMARY KEY AUTOINCREMENT, home_team_score INT, " +
         "away_team_score INT)")
 
-    locations_create = ("CREATE TABLE if not exists Locations " +
-        "(id INTEGER PRIMARY KEY AUTOINCREMENT," +
-        "location_name VARCHAR(50), location_city VARCHAR(50)," +
-        "location_state VARCHAR(50))")
-
     # Remove these lines for data persistence, but they are good for testing
     # curs.execute("DROP TABLE if exists TournamentRegistrations")
     # curs.execute("DROP TABLE if exists PlayersOnTeams")
@@ -92,7 +87,7 @@ def create_basic_tables():
 
     # Execute the statements
     statements = [tournaments_create, teams_create, players_create, 
-        games_create, scores_create, locations_create]
+        games_create, scores_create]
     for statement in statements:
         curs.execute(statement)
 
@@ -439,7 +434,8 @@ def get_tournament_by_id(tournament_id: int):
         "start_date": tournament_info[5],
         "end_date": tournament_info[6],
         "is_reg_open": tournament_info[9],
-        "registered_teams": teams
+        "registered_teams": teams,
+        "location": tournament_info[8]
     }
 
     commit_close(conn, curs)
@@ -760,14 +756,13 @@ def check_if_registered(team_id: int, tournament_id: int):
 ###############################################################################
 # UPDATE
 ###############################################################################
-def update_tournament_location(tournament_id: int, 
-                    tournament_manager: int,
+def update_tournament_location(tournament_id: int,
                     location: str):
     conn, curs = get_conn_curs(DB_FILENAME)
     query = ("UPDATE Tournaments SET location = ?" + 
-    "WHERE tournament_id = ? and tournament_manager = ?")
+    "WHERE id = ?")
 
-    data = [location, tournament_id, tournament_manager]
+    data = [location, str(tournament_id)]
     curs.execute(query, data)
     commit_close(conn, curs)
 
