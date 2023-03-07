@@ -123,54 +123,6 @@ def do_create_team_command(user_id):
     
     print("Team created successfully.")
 
-def team_selection(user_id):
-    # Add team player
-    teams = get_teams_by_manager(user_id)
-    if not teams:
-        return
-    # Create a dictionary where the keys are the string options that a user
-    # will select on the menu, and the values are the corresponding teams
-    # IDs. Example: { "ID: 1, Name: Test Name": 1 }
-    team_options_dict = {}
-    for team in teams.values():
-        team_id = team["team_id"]
-        key = f"ID: {team_id}, Name: {team['name']}"
-        team_options_dict[key] = team_id
-    # Options to display are in the format "[ID] Name" created above
-    team_options = list(team_options_dict.keys())
-    terminal_menu = TerminalMenu(team_options, title=SELECT_TEAM)
-    menu_entry_index = terminal_menu.show()
-    # This is the string the user selected, which is the key for options_dict
-    team_key = team_options[menu_entry_index]
-    print(f"You selected team: {team_key}")
-    # Use the key to get the tournament ID
-    team_id = team_options_dict[team_key]
-    return team_id
-
-def player_selection(team_id):
-    # Add team player
-    players = get_players_by_team(team_id)
-    if not players:
-        return
-    # Create a dictionary where the keys are the string options that a user
-    # will select on the menu, and the values are the corresponding teams
-    # IDs. Example: { "ID: 1, Name: Test Name": 1 }
-    player_options_dict = {}
-    for player in players.values():
-        player_id = player["player_id"]
-        key = f"ID: {player_id}, Name: {player['name']}"
-        player_options_dict[key] = player_id
-    # Options to display are in the format "[ID] Name" created above
-    player_options = list(player_options_dict.keys())
-    terminal_menu = TerminalMenu(player_options, title=SELECT_PLAYER)
-    menu_entry_index = terminal_menu.show()
-    # This is the string the user selected, which is the key for options_dict
-    player_key = player_options[menu_entry_index]
-    print(f"You selected team: {player_key}")
-    # Use the key to get the tournament ID
-    player_id = player_options_dict[player_key]
-    return player_id
-
 def do_add_player(user_id):
     # Add team player
     team_id = team_selection(user_id)
@@ -425,6 +377,11 @@ def do_other_command(command):
     if command in VIEW_OPTIONS:
         do_view_command(command)
 
+###############################################################################
+# HELPER FUNCTIONS
+###############################################################################
+
+
 def create_date(start):
     month_options = ["January", "February", "March", "April", "May",
     "June", "July", "August", "September", "November", "December"]
@@ -456,6 +413,54 @@ def grab_tournament_id(user_id):
     # Use the key to get the tournament ID
     tournament_id = tournament_options_dict[tournament_key]
     return tournament_id
+
+def player_selection(team_id):
+    # Add team player
+    players = get_players_by_team(team_id)
+    if not players:
+        return
+    # Create a dictionary where the keys are the string options that a user
+    # will select on the menu, and the values are the corresponding teams
+    # IDs. Example: { "ID: 1, Name: Test Name": 1 }
+    player_options_dict = {}
+    for player in players.values():
+        player_id = player["player_id"]
+        key = f"ID: {player_id}, Name: {player['name']}"
+        player_options_dict[key] = player_id
+    # Options to display are in the format "[ID] Name" created above
+    player_options = list(player_options_dict.keys())
+    terminal_menu = TerminalMenu(player_options, title=SELECT_PLAYER)
+    menu_entry_index = terminal_menu.show()
+    # This is the string the user selected, which is the key for options_dict
+    player_key = player_options[menu_entry_index]
+    print(f"You selected team: {player_key}")
+    # Use the key to get the tournament ID
+    player_id = player_options_dict[player_key]
+    return player_id
+
+def team_selection(user_id):
+    # Add team player
+    teams = get_teams_by_manager(user_id)
+    if not teams:
+        return
+    # Create a dictionary where the keys are the string options that a user
+    # will select on the menu, and the values are the corresponding teams
+    # IDs. Example: { "ID: 1, Name: Test Name": 1 }
+    team_options_dict = {}
+    for team in teams.values():
+        team_id = team["team_id"]
+        key = f"ID: {team_id}, Name: {team['name']}"
+        team_options_dict[key] = team_id
+    # Options to display are in the format "[ID] Name" created above
+    team_options = list(team_options_dict.keys())
+    terminal_menu = TerminalMenu(team_options, title=SELECT_TEAM)
+    menu_entry_index = terminal_menu.show()
+    # This is the string the user selected, which is the key for options_dict
+    team_key = team_options[menu_entry_index]
+    print(f"You selected team: {team_key}")
+    # Use the key to get the tournament ID
+    team_id = team_options_dict[team_key]
+    return team_id
 
 
 
