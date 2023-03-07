@@ -2,8 +2,10 @@ from database.tournament_database import (
     create_game_score,
     create_team,
     create_tournament,
+    create_game,
     get_tournaments_by_manager,
-    get_games_by_tournament)
+    get_games_by_tournament,
+    get_all_teams)
 from backend.tournaments import print_all_teams, print_all_tournaments
 from simple_term_menu import TerminalMenu
 from datetime import datetime, date
@@ -115,24 +117,7 @@ def do_create_team_command(user_id):
     print("Team created successfully.")
 
 def do_input_score_command(user_id):
-    tournaments = get_tournaments_by_manager(user_id)
-    # Create a dictionary where the keys are the string options that a user
-    # will select on the menu, and the values are the corresponding tournament
-    # IDs. Example: { "ID: 1, Name: Test Name": 1 }
-    tournament_options_dict = {}
-    for tournament in tournaments.values():
-        tournament_id = tournament["tournament_id"]
-        key = f"ID: {tournament_id}, Name: {tournament['name']}"
-        tournament_options_dict[key] = tournament_id
-    # Options to display are in the format "[ID] Name" created above
-    tournament_options = list(tournament_options_dict.keys())
-    terminal_menu = TerminalMenu(tournament_options, title=SELECT_TOURNAMENT)
-    menu_entry_index = terminal_menu.show()
-    # This is the string the user selected, which is the key for options_dict
-    tournament_key = tournament_options[menu_entry_index]
-    print(f"You selected tournament: {tournament_key}")
-    # Use the key to get the tournament ID
-    tournament_id = tournament_options_dict[tournament_key]
+    tournament_id = grab_tournament_id(user_id)
 
     # Same as above but for games
     games = get_games_by_tournament(tournament_id)
@@ -171,6 +156,45 @@ def do_input_score_command(user_id):
         print(err)
         return
     print("Score created successfully.")
+
+def do_create_game_command(user_id):
+    tournament_id = grab_tournament_id(user_id)
+    teams = get_all_teams()
+
+    # Create game
+    team_options = list(teams.values())
+    team_ids = []
+    team_names = []
+    for team in teams.values():
+        team_ids.append(team["team_id"])
+        team_names.append(team["name"])
+
+    team_menu = TerminalMenu(team_names, title="Select home team: ")
+    menu_entry_index = team_menu.show()
+    home_team_id = team_ids[menu_entry_index]
+
+    team_menu = TerminalMenu(team_names, title="Select away team: ")
+    menu_entry_index = team_menu.show()
+    away_team_id = team_ids[menu_entry_index]
+
+    time = input(f"Enter game start time in the format 'HH:MM': ")
+    location = input("Enter field location of the game: ")
+
+    try:
+        time = datetime.strptime(time, 
+            "%H:%M")
+    except:
+        command = input("Time must be datetime")
+        return
+
+    try:
+        create_game(time, tournament_id, location, home_team_id, away_team_id)
+        print("\nGame successfully created.")
+    except Exception as err:
+        print("There was an error")
+        print(err)
+        return
+
 
 def do_create_tournament_command(user_id):
     # Create a tournament
@@ -241,7 +265,7 @@ def do_tournament_manager_command(command, user_id):
         do_create_tournament_command(user_id)
         return
     elif command == CREATE_GAME:
-        # TODO
+        do_create_game_command(user_id)
         return
     elif command == INPUT_SCORE:
         do_input_score_command(user_id)
@@ -259,7 +283,6 @@ def do_team_manager_command(command, user_id):
     if command in VIEW_OPTIONS:
         do_view_command(command)
     elif command == CREATE_TEAM:
-        # TODO
         do_create_team_command(user_id)
     elif command == ADD_PLAYER:
         # TODO
@@ -285,6 +308,27 @@ def create_date(start):
     day = input(f"Enter tournament {start} day in the format 'DD': ")
     time = input(f"Enter tournament {start} time in the format 'HH:MM': ")
     return f"{month_options[menu_entry_index]}-{day}-{year} {time}"
+
+def grab_tournament_id(user_id):
+    tournaments = get_tournaments_by_manager(user_id)
+    # Create a dictionary where the keys are the string options that a user
+    # will select on the menu, and the values are the corresponding tournament
+    # IDs. Example: { "ID: 1, Name: Test Name": 1 }
+    tournament_options_dict = {}
+    for tournament in tournaments.values():
+        tournament_id = tournament["tournament_id"]
+        key = f"ID: {tournament_id}, Name: {tournament['name']}"
+        tournament_options_dict[key] = tournament_id
+    # Options to display are in the format "[ID] Name" created above
+    tournament_options = list(tournament_options_dict.keys())
+    terminal_menu = TerminalMenu(tournament_options, title=SELECT_TOURNAMENT)
+    menu_entry_index = terminal_menu.show()
+    # This is the string the user selected, which is the key for options_dict
+    tournament_key = tournament_options[menu_entry_index]
+    print(f"You selected tournament: {tournament_key}")
+    # Use the key to get the tournament ID
+    tournament_id = tournament_options_dict[tournament_key]
+    return tournament_id
 
 
 
