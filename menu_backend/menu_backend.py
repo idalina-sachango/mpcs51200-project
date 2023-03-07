@@ -12,14 +12,11 @@ from database.tournament_database import (
     get_players_by_team,
     delete_player,
     get_all_teams,
-<<<<<<< HEAD
-    update_tournament_location)
-from backend.tournaments import print_all_teams, print_all_tournaments, print_tournaments
-=======
     update_tournament_location,
     close_reg)
+from backend.tournaments import print_all_teams, print_all_tournaments, print_tournaments
+    update_tournament_location
 from backend.tournaments import print_all_teams, print_all_tournaments, check_team_eligibility
->>>>>>> 0026b95d66eb7473c24ae2d5cf41c2eff6389079
 from simple_term_menu import TerminalMenu
 from datetime import datetime, date
 
