@@ -13,9 +13,12 @@ from database.tournament_database import (
     delete_player,
     get_all_teams,
     update_tournament_location,
-    close_reg)
-from backend.tournaments import print_all_teams, print_all_tournaments, print_tournaments
+    close_reg,
     update_tournament_location
+)
+from backend.tournaments import (
+    print_all_teams, print_all_tournaments, print_tournaments
+)
 from backend.tournaments import print_all_teams, print_all_tournaments, check_team_eligibility
 from simple_term_menu import TerminalMenu
 from datetime import datetime, date
@@ -247,6 +250,11 @@ def do_register_tournament(user_id):
 def do_create_game_command(user_id):
     tournament_id = grab_tournament_id(user_id)
     teams = get_all_teams()
+    t = get_tournament_by_id(tournament_id)
+    start = datetime.strptime(t['start_date'], "%Y-%m-%d %H:%M:%S.%f")
+    end = datetime.strptime(t['end_date'], "%Y-%m-%d %H:%M:%S.%f")
+    start = start.date()
+    end = end.date()
 
     # Create game
     team_options = list(teams.values())
@@ -262,13 +270,19 @@ def do_create_game_command(user_id):
     team_menu = TerminalMenu(team_names, title="Select away team: ")
     menu_entry_index = team_menu.show()
     away_team_id = team_ids[menu_entry_index]
+
+    print(f"\nYour selected tournament start date: {start}")
+    print(f"Your selected tournament end date: {end}\n")
+
     time = create_date(start="START", typ="game")
     location = input("Enter field location of the game: ")
     try:
         time = datetime.strptime(time, 
             "%B-%d-%Y %H:%M")
-    except:
-        command = input("Time must be datetime")
+        assert(start <= time.date() <= end)
+    except Exception as err:
+        print("There was an error")
+        print(err)
         return
     try:
         create_game(time, tournament_id, location, home_team_id, away_team_id)
