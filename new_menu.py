@@ -11,6 +11,8 @@ from menu_backend.menu_backend import (
     do_other_command
 )
 from simple_term_menu import TerminalMenu
+from database.tournament_database import setup_tournament_database
+from database.user_database import setup_user_database
 
 def log_in_menu():
     # Get all possible users, keys are the usernames
@@ -70,6 +72,8 @@ def other_menu():
         do_other_command(command)
 
 if __name__ == "__main__":
+    setup_user_database()
+    setup_tournament_database()
     user_id, user_type = log_in_menu()
     print(f"You are logged in as a {user_type}.")
     if user_type == "TournamentManager":
