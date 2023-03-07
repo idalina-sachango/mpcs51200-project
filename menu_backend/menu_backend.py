@@ -21,8 +21,6 @@ SELECT_TOURNAMENT = "Select a tournament."
 AGE_INT_ERROR = "Age must be an integer."
 SCORE_INT_ERROR = "Score input must be an integer."
 DATE_ERROR = "Date must be datetime"
-month_options = ["January", "February", "March", "April", "May",
-    "June", "July", "August", "September", "November", "December"]
 
 ###############################################################################
 # CONSTANT MENU OPTIONS
@@ -196,12 +194,7 @@ def do_create_tournament_command(user_id):
         return
     # Check date formats
     # start_date = input("Enter tournament start date in the format 'MM-DD-YYYY HH:MM': ")
-    start_year = input("Enter tournament START year: ")
-    start_month_menu = TerminalMenu(month_options, title="Select tournament START month: ")
-    start_menu_entry_index = start_month_menu.show()
-    start_day = input("Enter tournament start day in the format 'DD': ")
-    start_time = input("Enter tournament start time in the format 'HH:MM': ")
-    start_date = f"{month_options[start_menu_entry_index]}-{start_day}-{start_year} {start_time}"
+    start_date = create_date(start="START")
     try: 
         start_date = datetime.strptime(start_date, 
             "%B-%d-%Y %H:%M")
@@ -210,12 +203,7 @@ def do_create_tournament_command(user_id):
         command = input(DATE_ERROR)
         return
     
-    end_year = input("Enter tournament END year: ")
-    end_month_menu = TerminalMenu(month_options, title="Select tournament END month: ")
-    end_menu_entry_index = end_month_menu.show()
-    end_day = input("Enter tournament end day in the format 'DD': ")
-    end_time = input("Enter tournament end time in the format 'HH:MM': ")
-    end_date = f"{month_options[end_menu_entry_index]}-{end_day}-{end_year} {end_time}"
+    end_date = create_date(start="END")
     try:
         end_date = datetime.strptime(end_date, 
             "%B-%d-%Y %H:%M")
@@ -286,3 +274,17 @@ def do_team_manager_command(command, user_id):
 def do_other_command(command):
     if command in VIEW_OPTIONS:
         do_view_command(command)
+
+def create_date(start):
+    month_options = ["January", "February", "March", "April", "May",
+    "June", "July", "August", "September", "November", "December"]
+
+    year = input(f"Enter tournament {start} year: ")
+    month_menu = TerminalMenu(month_options, title=f"Select tournament {start} month: ")
+    menu_entry_index = month_menu.show()
+    day = input(f"Enter tournament {start} day in the format 'DD': ")
+    time = input(f"Enter tournament {start} time in the format 'HH:MM': ")
+    return f"{month_options[menu_entry_index]}-{day}-{year} {time}"
+
+
+
