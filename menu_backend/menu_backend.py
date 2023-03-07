@@ -1,12 +1,13 @@
 from database.tournament_database import (
     create_game_score,
+    create_team,
     get_tournaments_by_manager,
     get_games_by_tournament)
 from backend.tournaments import print_all_teams, print_all_tournaments
 from simple_term_menu import TerminalMenu
 
 ###############################################################################
-# CONSTANT TITLES
+# CONSTANT TITLES AND ERROR MESSAGES
 ###############################################################################
 
 # Title to be displayed above all menus
@@ -14,6 +15,9 @@ MENU_TITLE = '''Please select an action using up/down arrows and enter.
 Press q to quit.'''
 
 SELECT_TOURNAMENT = "Select a tournament."
+
+AGE_INT_ERROR = "Age must be an integer."
+SCORE_INT_ERROR = "Score input must be an integer."
 
 ###############################################################################
 # CONSTANT MENU OPTIONS
@@ -66,6 +70,47 @@ OTHER_OPTIONS = VIEW_OPTIONS + [QUIT]
 # COMMAND EXECUTION FUNCTIONS
 ###############################################################################
 
+def do_create_team_command(user_id):
+    name = input("Enter a team name: ")
+    terminal_menu = TerminalMenu(
+        ["M", "F"],
+        multi_select=True,
+        show_multi_select_hint=True,
+    )
+    terminal_menu.show()
+    input_genders = terminal_menu.chosen_menu_entries
+    if len(input_genders) == 2:
+        genders = "co-ed"
+    else:
+        genders = input_genders[0].lower()
+    
+    age_min = input("Enter the minimum age eligible to play: ")
+    try:
+        age_min_int = int(age_min)
+    except ValueError:
+        print(AGE_INT_ERROR)
+        return
+
+    age_max = input("Enter the maximum age eligible to play: ")
+    try:
+        age_max_int = int(age_max)
+    except ValueError:
+        print(AGE_INT_ERROR)
+        return
+    
+    if age_max_int < age_min_int:
+        print("Maximum age must be larger than minimum age.")
+        return
+    
+    try:
+        create_team(name, genders, age_min_int, age_max_int, user_id)
+    except Exception as err:
+        print("There was an error:")
+        print(err)
+        return
+    
+    print("Team created successfully.")
+
 def do_input_score_command(user_id):
     tournaments = get_tournaments_by_manager(user_id)
     # Create a dictionary where the keys are the string options that a user
@@ -106,19 +151,18 @@ def do_input_score_command(user_id):
     try:
         home_team_score_int = int(home_team_score)
     except ValueError:
-        print("Home team score input must be an integer.")
+        print(SCORE_INT_ERROR)
         return
 
     away_team_score = input("Enter away team score: ")
     try:
         away_team_score_int = int(away_team_score)
     except ValueError:
-        print("Away team score input must be an integer.")
+        print(SCORE_INT_ERROR)
         return
 
     try:
-        create_game_score(game_id, home_team_score_int, 
-                            away_team_score_int)
+        create_game_score(game_id, home_team_score_int, away_team_score_int)
     except Exception as err:
         print("There was an error:")
         print(err)
@@ -161,7 +205,7 @@ def do_team_manager_command(command, user_id):
         do_view_command(command)
     elif command == CREATE_TEAM:
         # TODO
-        return
+        do_create_team_command(user_id)
     elif command == ADD_PLAYER:
         # TODO
         return
