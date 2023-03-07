@@ -1,10 +1,12 @@
 from database.tournament_database import (
     create_game_score,
     create_team,
+    create_tournament,
     get_tournaments_by_manager,
     get_games_by_tournament)
 from backend.tournaments import print_all_teams, print_all_tournaments
 from simple_term_menu import TerminalMenu
+from datetime import datetime, date
 
 ###############################################################################
 # CONSTANT TITLES AND ERROR MESSAGES
@@ -18,6 +20,9 @@ SELECT_TOURNAMENT = "Select a tournament."
 
 AGE_INT_ERROR = "Age must be an integer."
 SCORE_INT_ERROR = "Score input must be an integer."
+DATE_ERROR = "Date must be datetime"
+month_options = ["January", "February", "March", "April", "May",
+    "June", "July", "August", "September", "November", "December"]
 
 ###############################################################################
 # CONSTANT MENU OPTIONS
@@ -169,6 +174,68 @@ def do_input_score_command(user_id):
         return
     print("Score created successfully.")
 
+def do_create_tournament_command(user_id):
+    # Create a tournament
+    name = input("Enter tournament name: ")
+    gender_options = ["m", "f", "co-ed"]
+    terminal_menu = TerminalMenu(gender_options, title="Select eligible genders: ")
+    menu_entry_index = terminal_menu.show()
+    gender = gender_options[menu_entry_index]
+
+    age_min = input("Enter minimum eligible age: ")
+    try:
+        age_min = int(age_min)
+    except:
+        command = input(AGE_INT_ERROR)
+        return
+    age_max = input("Enter maximum eligible age: ")
+    try:
+        age_max = int(age_max)
+    except:
+        command = input(AGE_INT_ERROR)
+        return
+    # Check date formats
+    # start_date = input("Enter tournament start date in the format 'MM-DD-YYYY HH:MM': ")
+    start_year = input("Enter tournament START year: ")
+    start_month_menu = TerminalMenu(month_options, title="Select tournament START month: ")
+    start_menu_entry_index = start_month_menu.show()
+    start_day = input("Enter tournament start day in the format 'DD': ")
+    start_time = input("Enter tournament start time in the format 'HH:MM': ")
+    start_date = f"{month_options[start_menu_entry_index]}-{start_day}-{start_year} {start_time}"
+    try: 
+        start_date = datetime.strptime(start_date, 
+            "%B-%d-%Y %H:%M")
+        print(f"Your entered tournament start date: {start_date}")
+    except:
+        command = input(DATE_ERROR)
+        return
+    
+    end_year = input("Enter tournament END year: ")
+    end_month_menu = TerminalMenu(month_options, title="Select tournament END month: ")
+    end_menu_entry_index = end_month_menu.show()
+    end_day = input("Enter tournament end day in the format 'DD': ")
+    end_time = input("Enter tournament end time in the format 'HH:MM': ")
+    end_date = f"{month_options[end_menu_entry_index]}-{end_day}-{end_year} {end_time}"
+    try:
+        end_date = datetime.strptime(end_date, 
+            "%B-%d-%Y %H:%M")
+        print(f"Your entered tournament end date: {start_date}")
+    except:
+        command = input(DATE_ERROR)
+        return
+    location = input("Enter tournament location in the format 'city, state': ")
+    # Check creation of tournament was succesful.
+    # If so, break loop.
+    try:
+        create_tournament(name, gender, age_min,
+            age_max, start_date, end_date, user_id, location)
+        print("\nTournament successfully created.")
+    except Exception as err:
+        print("There was an error")
+        print(err)
+        return
+
+
 ###############################################################################
 # COMMAND CONTROL FLOW FUNCTIONS
 ###############################################################################
@@ -183,7 +250,7 @@ def do_tournament_manager_command(command, user_id):
     if command in VIEW_OPTIONS:
         do_view_command(command)
     elif command == CREATE_TOURNAMENT:
-        # TODO
+        do_create_tournament_command(user_id)
         return
     elif command == CREATE_GAME:
         # TODO
