@@ -142,4 +142,3 @@ def check_team_eligibility(team_id: int, tournament_id: int):
         return True
     else:
         return False
- 

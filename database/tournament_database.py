@@ -705,7 +705,8 @@ def get_team_gender_range(team_id: int):
     male = False
     female = False
     for roster_item in roster:
-        player_id = roster_item[0]
+        # print(f"getting team_id {roster_item[0]} player_id {roster_item[1]}")
+        player_id = roster_item[1]
         gender = get_player_by_id(player_id)["gender"]
         if gender == "m":
             male = True
@@ -741,6 +742,19 @@ def get_team_by_player(player_id: int):
     # print(f"team id: {team_id} player id: {player_id}")
 
     return team_id
+
+def check_if_registered(team_id: int, tournament_id: int):
+    conn, curs = get_conn_curs(DB_FILENAME)
+    select_registrations = ("SELECT * FROM TournamentRegistrations " +
+        "WHERE tournament_id = ? AND team_id = ?")
+    select_data = [tournament_id, team_id]
+
+    curs.execute(select_registrations, select_data)
+    registrations = curs.fetchall()
+
+    if registrations:
+        return True
+    return False
     
 
 ###############################################################################

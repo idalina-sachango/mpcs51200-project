@@ -8,8 +8,12 @@ from database.tournament_database import (
     get_team_by_id,
     create_player,
     get_players_by_team,
-    delete_player)
-from backend.tournaments import print_all_teams, print_all_tournaments
+    delete_player,
+    get_all_tournaments,
+    get_tournament_by_id,
+    register_team_in_tournament,
+    check_if_registered)
+from backend.tournaments import print_all_teams, print_all_tournaments, check_team_eligibility
 from simple_term_menu import TerminalMenu
 from datetime import datetime, date
 
@@ -300,7 +304,60 @@ def do_input_score_command(user_id):
     print("Score created successfully.")
 
 def do_register_tournament(user_id):
-    pass
+    team_id = team_selection(user_id)
+    if not team_id:
+        print("You don't have any teams.")
+        return
+
+    tournaments = get_all_tournaments()
+    if not tournaments:
+        print("No tournaments to register.")
+        return
+    # Create a dictionary where the keys are the string options that a user
+    # will select on the menu, and the values are the corresponding tournament
+    # IDs. Example: { "ID: 1, Name: Test Name": 1 }
+    tournament_options_dict = {}
+    for tournament in tournaments.values():
+        tournament_id = tournament["tournament_id"]
+        key = f"ID: {tournament_id}, Name: {tournament['name']}"
+        tournament_options_dict[key] = tournament_id
+    # Options to display are in the format "[ID] Name" created above
+    tournament_options = list(tournament_options_dict.keys())
+    terminal_menu = TerminalMenu(tournament_options, title=SELECT_TOURNAMENT)
+    menu_entry_index = terminal_menu.show()
+    # This is the string the user selected, which is the key for options_dict
+    tournament_key = tournament_options[menu_entry_index]
+    print(f"You selected tournament: {tournament_key}")
+    # Use the key to get the tournament ID
+    tournament_id = tournament_options_dict[tournament_key]
+
+
+    # Check if registration is open
+    is_reg_open = get_tournament_by_id(tournament_id)["is_reg_open"]
+    if not is_reg_open:
+        print("Registration closed.")
+        return
+    
+    # Check if registered
+    registered = check_if_registered(team_id, tournament_id)
+    if registered:
+        print("Already registered.")
+        return
+        
+    # Check if all team members meet gender and age requirments
+    if not check_team_eligibility(team_id, tournament_id):
+        print("Someone on your team isn't eligible for tournament or your team is empty.")
+        return
+
+    # Check if registration was succesful.
+    # If so, break loop.
+    try:
+        register_team_in_tournament(tournament_id, team_id)
+    except Exception as err:
+        print("There was an error:")
+        print(err)
+        return
+    print("\nRegistration successful.")
 
 def do_create_tournament_command(user_id):
     # Create a tournament
