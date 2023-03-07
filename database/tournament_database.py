@@ -74,11 +74,6 @@ def create_basic_tables():
         "(id INTEGER PRIMARY KEY AUTOINCREMENT, home_team_score INT, " +
         "away_team_score INT)")
 
-    locations_create = ("CREATE TABLE if not exists Locations " +
-        "(id INTEGER PRIMARY KEY AUTOINCREMENT," +
-        "location_name VARCHAR(50), location_city VARCHAR(50)," +
-        "location_state VARCHAR(50))")
-
     # Remove these lines for data persistence, but they are good for testing
     # curs.execute("DROP TABLE if exists TournamentRegistrations")
     # curs.execute("DROP TABLE if exists PlayersOnTeams")
@@ -92,7 +87,7 @@ def create_basic_tables():
 
     # Execute the statements
     statements = [tournaments_create, teams_create, players_create, 
-        games_create, scores_create, locations_create]
+        games_create, scores_create]
     for statement in statements:
         curs.execute(statement)
 
