@@ -239,9 +239,6 @@ def control_loop():
                                     continue
 
                                 print_tournament_games(tournament_id)
-                        # elif command == "9":
-                        #     id = input()
-                        #     get_score_by_game(id)
 
                         elif command == "quit" or "logout":
                             log_in_failed = False

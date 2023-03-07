@@ -4,8 +4,17 @@ from database.tournament_database import (
     create_tournament,
     create_game,
     get_tournaments_by_manager,
+<<<<<<< HEAD
     get_games_by_tournament,
     get_all_teams)
+=======
+    get_teams_by_manager,
+    get_games_by_tournament,
+    get_team_by_id,
+    create_player,
+    get_players_by_team,
+    delete_player)
+>>>>>>> 85a2075932a208ba18029e22ea058fa4bc149990
 from backend.tournaments import print_all_teams, print_all_tournaments
 from simple_term_menu import TerminalMenu
 from datetime import datetime, date
@@ -19,6 +28,8 @@ MENU_TITLE = '''Please select an action using up/down arrows and enter.
 Press q to quit.'''
 
 SELECT_TOURNAMENT = "Select a tournament."
+SELECT_TEAM = "Select a team."
+SELECT_PLAYER = "Select a player."
 
 AGE_INT_ERROR = "Age must be an integer."
 SCORE_INT_ERROR = "Score input must be an integer."
@@ -116,6 +127,126 @@ def do_create_team_command(user_id):
     
     print("Team created successfully.")
 
+def team_selection(user_id):
+    # Add team player
+    teams = get_teams_by_manager(user_id)
+    if not teams:
+        return
+    # Create a dictionary where the keys are the string options that a user
+    # will select on the menu, and the values are the corresponding teams
+    # IDs. Example: { "ID: 1, Name: Test Name": 1 }
+    team_options_dict = {}
+    for team in teams.values():
+        team_id = team["team_id"]
+        key = f"ID: {team_id}, Name: {team['name']}"
+        team_options_dict[key] = team_id
+    # Options to display are in the format "[ID] Name" created above
+    team_options = list(team_options_dict.keys())
+    terminal_menu = TerminalMenu(team_options, title=SELECT_TEAM)
+    menu_entry_index = terminal_menu.show()
+    # This is the string the user selected, which is the key for options_dict
+    team_key = team_options[menu_entry_index]
+    print(f"You selected team: {team_key}")
+    # Use the key to get the tournament ID
+    team_id = team_options_dict[team_key]
+    return team_id
+
+def player_selection(team_id):
+    # Add team player
+    players = get_players_by_team(team_id)
+    if not players:
+        return
+    # Create a dictionary where the keys are the string options that a user
+    # will select on the menu, and the values are the corresponding teams
+    # IDs. Example: { "ID: 1, Name: Test Name": 1 }
+    player_options_dict = {}
+    for player in players.values():
+        player_id = player["player_id"]
+        key = f"ID: {player_id}, Name: {player['name']}"
+        player_options_dict[key] = player_id
+    # Options to display are in the format "[ID] Name" created above
+    player_options = list(player_options_dict.keys())
+    terminal_menu = TerminalMenu(player_options, title=SELECT_PLAYER)
+    menu_entry_index = terminal_menu.show()
+    # This is the string the user selected, which is the key for options_dict
+    player_key = player_options[menu_entry_index]
+    print(f"You selected team: {player_key}")
+    # Use the key to get the tournament ID
+    player_id = player_options_dict[player_key]
+    return player_id
+
+def do_add_player(user_id):
+    # Add team player
+    team_id = team_selection(user_id)
+    if not team_id:
+        print("You don't have any teams.")
+        return
+
+    name = input("Enter player name: ")
+
+    terminal_menu = TerminalMenu(
+        ["M", "F"],
+        multi_select=True,
+        show_multi_select_hint=True,
+    )
+    terminal_menu.show()
+    input_genders = terminal_menu.chosen_menu_entries
+    if len(input_genders) == 2:
+        gender = "co-ed"
+    else:
+        gender = input_genders[0].lower()
+
+    # Check if gender is allowed in team
+    allowed_genders = get_team_by_id(team_id)["team_gender"]
+    if not allowed_genders == "co-ed" and not allowed_genders == gender:
+        print("Gender ineligible for team.")
+        return
+
+
+    age = input("Enter player age: ")
+
+    try:
+        age = int(age)
+    except:
+        print("Age must be a integer.")
+        return
+        
+    # Check if age is eligible for team
+    team_min_age = get_team_by_id(team_id)["team_age_min"]
+    team_max_age = get_team_by_id(team_id)["team_age_max"]
+
+    if age < team_min_age or age > team_max_age:
+        print("Age ineligible for team.")
+        return
+
+    try:
+        create_player(name, gender, age, team_id)
+    except Exception as err:
+        print("There was an error:")
+        print(err)
+        return
+    
+    print("Player created successfully.")
+
+def do_delete_player(user_id):
+    team_id = team_selection(user_id)
+    if not team_id:
+        print("You don't have any teams.")
+        return
+    player_id = player_selection(team_id)
+    if not player_id:
+        print("You don't have any players.")
+        return
+    
+    # Check if deletion of player was succesful.
+    try:
+        delete_player(player_id)
+        print("\nDeletion successful.")
+    except Exception as err:
+        print("There was an error:")
+        print(err)
+
+
 def do_input_score_command(user_id):
     tournament_id = grab_tournament_id(user_id)
 
@@ -157,6 +288,7 @@ def do_input_score_command(user_id):
         return
     print("Score created successfully.")
 
+<<<<<<< HEAD
 def do_create_game_command(user_id):
     tournament_id = grab_tournament_id(user_id)
     teams = get_all_teams()
@@ -195,6 +327,10 @@ def do_create_game_command(user_id):
         print(err)
         return
 
+=======
+def do_register_tournament(user_id):
+    pass
+>>>>>>> 85a2075932a208ba18029e22ea058fa4bc149990
 
 def do_create_tournament_command(user_id):
     # Create a tournament
@@ -285,14 +421,11 @@ def do_team_manager_command(command, user_id):
     elif command == CREATE_TEAM:
         do_create_team_command(user_id)
     elif command == ADD_PLAYER:
-        # TODO
-        return
+        do_add_player(user_id)
     elif command == DELETE_PLAYER:
-        # TODO
-        return
+        do_delete_player(user_id)
     elif command == REGISTER_FOR_TOURNAMENT:
-        # TODO
-        return
+        do_register_tournament(user_id)
 
 def do_other_command(command):
     if command in VIEW_OPTIONS:

@@ -344,6 +344,40 @@ def get_all_teams():
 
     return teams
 
+def get_teams_by_manager(manager_id: int):
+    conn, curs = get_conn_curs(DB_FILENAME)
+
+    curs.execute("SELECT * FROM Teams WHERE team_manager = ?",
+                 [manager_id])
+    rows = curs.fetchall()
+
+    teams = {}
+    for row in rows:
+        team_id = row[0]
+        teams[team_id] = get_team_by_id(team_id)
+
+    commit_close(conn, curs)
+
+    return teams
+
+def get_players_by_team(team_id: int):
+    conn, curs = get_conn_curs(DB_FILENAME)
+
+    select_roster = "SELECT * FROM PlayersOnTeams WHERE team_id = ?"
+    select_data = [team_id]
+
+    curs.execute(select_roster, select_data)
+    roster = curs.fetchall()
+
+    players = {}
+    for roster_item in roster:
+        player_id = roster_item[1]
+        players[player_id] = get_player_by_id(player_id)
+
+    commit_close(conn, curs)
+
+    return players
+
 def get_tournament_by_name(tournament_name: str):
     # Is tournament name in database?
     conn, curs = get_conn_curs(DB_FILENAME)
