@@ -747,14 +747,13 @@ def get_team_by_player(player_id: int):
 ###############################################################################
 # UPDATE
 ###############################################################################
-def update_tournament_location(tournament_id: int, 
-                    tournament_manager: int,
+def update_tournament_location(tournament_id: int,
                     location: str):
     conn, curs = get_conn_curs(DB_FILENAME)
     query = ("UPDATE Tournaments SET location = ?" + 
-    "WHERE tournament_id = ? and tournament_manager = ?")
+    "WHERE id = ?")
 
-    data = [location, tournament_id, tournament_manager]
+    data = [location, str(tournament_id)]
     curs.execute(query, data)
     commit_close(conn, curs)
 

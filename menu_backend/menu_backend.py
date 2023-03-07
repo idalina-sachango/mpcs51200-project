@@ -4,14 +4,16 @@ from database.tournament_database import (
     create_tournament,
     create_game,
     get_tournaments_by_manager,
+    get_tournament_by_id,
     get_teams_by_manager,
     get_games_by_tournament,
     get_team_by_id,
     create_player,
     get_players_by_team,
     delete_player,
-    get_all_teams)
-from backend.tournaments import print_all_teams, print_all_tournaments
+    get_all_teams,
+    update_tournament_location)
+from backend.tournaments import print_all_teams, print_all_tournaments, print_tournaments
 from simple_term_menu import TerminalMenu
 from datetime import datetime, date
 
@@ -329,6 +331,19 @@ def do_create_tournament_command(user_id):
         print(err)
         return
 
+def do_update_tournament_location(user_id):
+    tournament_id = grab_tournament_id(user_id)
+    location = input("Enter updated tournament location in the format 'city, state': ")
+    try: 
+        update_tournament_location(tournament_id, location)
+        print("\nTournament location successfully updated.")
+    except Exception as err:
+        print("There was an error")
+        print(err)
+        return
+
+
+
 
 ###############################################################################
 # COMMAND CONTROL FLOW FUNCTIONS
@@ -352,7 +367,7 @@ def do_tournament_manager_command(command, user_id):
     elif command == INPUT_SCORE:
         do_input_score_command(user_id)
     elif command == SET_TOURNAMENT_LOCATION:
-        # TODO
+        do_update_tournament_location(user_id)
         return
     elif command == CLOSE_REGISTRATION:
         # TODO
