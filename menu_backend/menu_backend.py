@@ -46,7 +46,7 @@ QUIT = "[q] Quit"
 CREATE_TOURNAMENT = "Create a tournament"
 CREATE_GAME = "Create a game"
 INPUT_SCORE = "Input score for an existing game"
-SET_TOURNAMENT_LOCATION = "Set tournament location"
+UPDATE_TOURNAMENT_LOCATION = "Update tournament location"
 CLOSE_REGISTRATION = "Close registration for an existing tournament"
 # Probably want to refactor this one to show the tournament manager's
 # tournaments and allow them to select, also probably should rename
@@ -66,7 +66,7 @@ TOURNAMENT_MANAGER_OPTIONS = VIEW_OPTIONS + [
     CREATE_TOURNAMENT,
     CREATE_GAME,
     INPUT_SCORE,
-    SET_TOURNAMENT_LOCATION,
+    UPDATE_TOURNAMENT_LOCATION,
     CLOSE_REGISTRATION,
     SHOW_TOURNAMENT_STATUS
 ] + [QUIT]
@@ -366,7 +366,7 @@ def do_tournament_manager_command(command, user_id):
         return
     elif command == INPUT_SCORE:
         do_input_score_command(user_id)
-    elif command == SET_TOURNAMENT_LOCATION:
+    elif command == UPDATE_TOURNAMENT_LOCATION:
         do_update_tournament_location(user_id)
         return
     elif command == CLOSE_REGISTRATION:
