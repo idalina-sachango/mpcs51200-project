@@ -4,17 +4,13 @@ from database.tournament_database import (
     create_tournament,
     create_game,
     get_tournaments_by_manager,
-<<<<<<< HEAD
-    get_games_by_tournament,
-    get_all_teams)
-=======
     get_teams_by_manager,
     get_games_by_tournament,
     get_team_by_id,
     create_player,
     get_players_by_team,
-    delete_player)
->>>>>>> 85a2075932a208ba18029e22ea058fa4bc149990
+    delete_player,
+    get_all_teams)
 from backend.tournaments import print_all_teams, print_all_tournaments
 from simple_term_menu import TerminalMenu
 from datetime import datetime, date
@@ -288,7 +284,9 @@ def do_input_score_command(user_id):
         return
     print("Score created successfully.")
 
-<<<<<<< HEAD
+def do_register_tournament(user_id):
+    pass
+
 def do_create_game_command(user_id):
     tournament_id = grab_tournament_id(user_id)
     teams = get_all_teams()
@@ -327,10 +325,6 @@ def do_create_game_command(user_id):
         print(err)
         return
 
-=======
-def do_register_tournament(user_id):
-    pass
->>>>>>> 85a2075932a208ba18029e22ea058fa4bc149990
 
 def do_create_tournament_command(user_id):
     # Create a tournament
