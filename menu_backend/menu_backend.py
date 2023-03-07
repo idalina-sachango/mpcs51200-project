@@ -16,7 +16,8 @@ from database.tournament_database import (
     register_team_in_tournament,
     check_if_registered,
     get_all_teams,
-    update_tournament_location)
+    update_tournament_location,
+    close_reg)
 from backend.tournaments import print_all_teams, print_all_tournaments, check_team_eligibility
 from simple_term_menu import TerminalMenu
 from datetime import datetime, date
@@ -392,6 +393,18 @@ def do_update_tournament_location(user_id):
         print(err)
         return
 
+def do_close_registration(user_id):
+    # Close registration
+    tournament_id = grab_tournament_id(user_id)
+
+    try:
+        close_reg(tournament_id)
+        print("\nRegistration closed.")
+    except Exception as err:
+        print("There was an error")
+        print(err)
+        return
+
 
 
 
@@ -420,7 +433,7 @@ def do_tournament_manager_command(command, user_id):
         do_update_tournament_location(user_id)
         return
     elif command == CLOSE_REGISTRATION:
-        # TODO
+        do_close_registration(user_id)
         return
     elif command == SHOW_TOURNAMENT_STATUS:
         # TODO
