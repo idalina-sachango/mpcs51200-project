@@ -14,7 +14,9 @@ from database.tournament_database import (
     get_all_tournaments,
     get_tournament_by_id,
     register_team_in_tournament,
-    check_if_registered)
+    check_if_registered,
+    get_all_teams,
+    update_tournament_location)
 from backend.tournaments import print_all_teams, print_all_tournaments, check_team_eligibility
 from simple_term_menu import TerminalMenu
 from datetime import datetime, date
