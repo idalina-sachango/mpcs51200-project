@@ -25,7 +25,7 @@ from backend.tournaments import print_all_teams, print_all_tournaments, check_te
     get_all_tournaments,
     check_if_registered,
     register_team_in_tournament)
-from backend.tournaments import print_all_teams, print_all_tournaments, print_tournaments, update_tournament_location, check_team_eligibility, print_tournament_games
+from backend.tournaments import print_all_teams, print_all_tournaments, print_tournaments, check_team_eligibility, print_tournament_games
 
 >>>>>>> 340691382c2640e949ccb0e8778ffc2389f3ca58
 from simple_term_menu import TerminalMenu
@@ -149,17 +149,11 @@ def do_add_player(user_id):
 
     name = input("Enter player name: ")
 
-    terminal_menu = TerminalMenu(
-        ["M", "F"],
-        multi_select=True,
-        show_multi_select_hint=True,
-    )
-    terminal_menu.show()
-    input_genders = terminal_menu.chosen_menu_entries
-    if len(input_genders) == 2:
-        gender = "co-ed"
-    else:
-        gender = input_genders[0].lower()
+    gender_options = ["m", "f"]
+
+    terminal_menu = TerminalMenu(gender_options, title="Select gender: ")
+    menu_entry_index = terminal_menu.show()
+    gender = gender_options[menu_entry_index]
 
     # Check if gender is allowed in team
     allowed_genders = get_team_by_id(team_id)["team_gender"]
