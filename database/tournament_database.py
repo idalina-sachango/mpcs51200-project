@@ -439,7 +439,8 @@ def get_tournament_by_id(tournament_id: int):
         "start_date": tournament_info[5],
         "end_date": tournament_info[6],
         "is_reg_open": tournament_info[9],
-        "registered_teams": teams
+        "registered_teams": teams,
+        "location": tournament_info[8]
     }
 
     commit_close(conn, curs)

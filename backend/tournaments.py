@@ -25,11 +25,12 @@ def print_tournaments(tournaments: dict):
             f"{tournament['eligible_age_max']}")
         print(f"Date Range: ({str(tournament['start_date'])})-" +
             f"({tournament['end_date']})")
+        print(f"Location: {tournament['location']}")
         if (tournament['is_reg_open']):
-            print(f"Registration Open")
+            print(f"Registration: Open")
         else:
-            print(f"Registration Closed")
-        print("Registered Teams")
+            print(f"Registration: Closed")
+        print("Registered Teams:")
         print(SHORT_LINE_DELIMITER)
         for team in tournament['registered_teams']:
             print(f"Team Name: {team['name']}")
