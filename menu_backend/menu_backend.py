@@ -252,25 +252,21 @@ def do_create_game_command(user_id):
     for team in teams.values():
         team_ids.append(team["team_id"])
         team_names.append(team["name"])
-
+    
     team_menu = TerminalMenu(team_names, title="Select home team: ")
     menu_entry_index = team_menu.show()
     home_team_id = team_ids[menu_entry_index]
-
     team_menu = TerminalMenu(team_names, title="Select away team: ")
     menu_entry_index = team_menu.show()
     away_team_id = team_ids[menu_entry_index]
-
-    time = input(f"Enter game start time in the format 'HH:MM': ")
+    time = create_date(start="START", typ="game")
     location = input("Enter field location of the game: ")
-
     try:
         time = datetime.strptime(time, 
-            "%H:%M")
+            "%B-%d-%Y %H:%M")
     except:
         command = input("Time must be datetime")
         return
-
     try:
         create_game(time, tournament_id, location, home_team_id, away_team_id)
         print("\nGame successfully created.")
@@ -284,10 +280,10 @@ def do_create_tournament_command(user_id):
     # Create a tournament
     name = input("Enter tournament name: ")
     gender_options = ["m", "f", "co-ed"]
+
     terminal_menu = TerminalMenu(gender_options, title="Select eligible genders: ")
     menu_entry_index = terminal_menu.show()
     gender = gender_options[menu_entry_index]
-
     age_min = input("Enter minimum eligible age: ")
     try:
         age_min = int(age_min)
@@ -302,7 +298,7 @@ def do_create_tournament_command(user_id):
         return
     # Check date formats
     # start_date = input("Enter tournament start date in the format 'MM-DD-YYYY HH:MM': ")
-    start_date = create_date(start="START")
+    start_date = create_date(start="START", typ="tournament")
     try: 
         start_date = datetime.strptime(start_date, 
             "%B-%d-%Y %H:%M")
@@ -310,8 +306,7 @@ def do_create_tournament_command(user_id):
     except:
         command = input(DATE_ERROR)
         return
-    
-    end_date = create_date(start="END")
+    end_date = create_date(start="END", typ="tournament")
     try:
         end_date = datetime.strptime(end_date, 
             "%B-%d-%Y %H:%M")
@@ -397,15 +392,15 @@ def do_other_command(command):
 ###############################################################################
 
 
-def create_date(start):
+def create_date(start, typ):
     month_options = ["January", "February", "March", "April", "May",
     "June", "July", "August", "September", "November", "December"]
 
-    year = input(f"Enter tournament {start} year: ")
-    month_menu = TerminalMenu(month_options, title=f"Select tournament {start} month: ")
+    year = input(f"Enter {typ} {start} year: ")
+    month_menu = TerminalMenu(month_options, title=f"Select {typ} {start} month: ")
     menu_entry_index = month_menu.show()
-    day = input(f"Enter tournament {start} day in the format 'DD': ")
-    time = input(f"Enter tournament {start} time in the format 'HH:MM': ")
+    day = input(f"Enter {typ} {start} day in the format 'DD': ")
+    time = input(f"Enter {typ} {start} time in the format 'HH:MM': ")
     return f"{month_options[menu_entry_index]}-{day}-{year} {time}"
 
 def grab_tournament_id(user_id):
