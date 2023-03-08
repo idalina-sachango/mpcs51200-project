@@ -14,39 +14,38 @@ from database.tournament_database import (
     get_all_teams,
     update_tournament_location,
     close_reg,
-<<<<<<< HEAD
-    update_tournament_location
-)
-from backend.tournaments import (
-    print_all_teams, print_all_tournaments, print_tournaments
-)
-from backend.tournaments import print_all_teams, print_all_tournaments, check_team_eligibility
-=======
+    update_tournament_location,
     get_all_tournaments,
     check_if_registered,
     register_team_in_tournament)
-from backend.tournaments import print_all_teams, print_all_tournaments, print_tournaments, check_team_eligibility, print_tournament_games
+from backend.tournaments import (
+    print_all_teams,
+    print_all_tournaments,
+    check_team_eligibility,
+    print_tournament_games)
 
->>>>>>> 340691382c2640e949ccb0e8778ffc2389f3ca58
 from simple_term_menu import TerminalMenu
-from datetime import datetime, date
+from datetime import datetime
+
 
 ###############################################################################
 # CONSTANT TITLES AND ERROR MESSAGES
 ###############################################################################
 
 # Title to be displayed above all menus
-MENU_TITLE = '''Please select an action using up/down arrows and enter.
+MENU_TITLE = '''
+Please select an action using up/down arrows and enter.
 Press q to quit.'''
 
 SELECT_TOURNAMENT = "Select a tournament."
 SELECT_TEAM = "Select a team."
 SELECT_PLAYER = "Select a player."
-SELECT_GAME = "Select a game"
+SELECT_GAME = "Select a game."
 
 AGE_INT_ERROR = "Age must be an integer."
 SCORE_INT_ERROR = "Score input must be an integer."
-DATE_ERROR = "Date must be datetime"
+DATE_ERROR = "Date must be datetime."
+
 
 ###############################################################################
 # CONSTANT MENU OPTIONS
@@ -55,6 +54,7 @@ DATE_ERROR = "Date must be datetime"
 # Need by all user types
 VIEW_ALL_TEAMS = "View all teams"
 VIEW_ALL_TOURNAMENTS = "View all tournaments"
+VIEW_TOURNAMENT_STATUS = "View tournament status (schedule and game results)"
 QUIT = "[q] Quit"
 
 # Needed by tournament managers only
@@ -63,10 +63,6 @@ CREATE_GAME = "Create a game"
 INPUT_SCORE = "Input score for an existing game"
 UPDATE_TOURNAMENT_LOCATION = "Update tournament location"
 CLOSE_REGISTRATION = "Close registration for an existing tournament"
-# Probably want to refactor this one to show the tournament manager's
-# tournaments and allow them to select, also probably should rename
-# to "show tournament schedule" or something
-SHOW_TOURNAMENT_STATUS = "Show tournament status by id"
 
 # Needed by team managers only
 CREATE_TEAM = "Create a team"
@@ -75,25 +71,26 @@ ADD_PLAYER = "Add a player to an existing team"
 REGISTER_FOR_TOURNAMENT = "Register for a tournament"
 
 # Options for viewing teams or tournaments, all user types have access
-VIEW_OPTIONS = [VIEW_ALL_TEAMS, VIEW_ALL_TOURNAMENTS]
+VIEW_OPTIONS = [
+    VIEW_ALL_TEAMS, 
+    VIEW_ALL_TOURNAMENTS,
+    VIEW_TOURNAMENT_STATUS]
 
 TOURNAMENT_MANAGER_OPTIONS = VIEW_OPTIONS + [
     CREATE_TOURNAMENT,
     CREATE_GAME,
     INPUT_SCORE,
     UPDATE_TOURNAMENT_LOCATION,
-    CLOSE_REGISTRATION,
-    SHOW_TOURNAMENT_STATUS
-] + [QUIT]
+    CLOSE_REGISTRATION] + [QUIT]
 
 TEAM_MANAGER_OPTIONS = VIEW_OPTIONS + [
     CREATE_TEAM,
     ADD_PLAYER,
     DELETE_PLAYER,
-    REGISTER_FOR_TOURNAMENT
-] + [QUIT]
+    REGISTER_FOR_TOURNAMENT] + [QUIT]
 
 OTHER_OPTIONS = VIEW_OPTIONS + [QUIT]
+
 
 ###############################################################################
 # COMMAND EXECUTION FUNCTIONS
@@ -109,9 +106,11 @@ def do_create_team_command(user_id):
     terminal_menu.show()
     input_genders = terminal_menu.chosen_menu_entries
     if len(input_genders) == 2:
-        genders = "co-ed"
+        gender = "co-ed"
     else:
-        genders = input_genders[0].lower()
+        gender = input_genders[0].lower()
+
+    print(f"You selected gender: {gender}")
     
     age_min = input("Enter the minimum age eligible to play: ")
     try:
@@ -132,7 +131,7 @@ def do_create_team_command(user_id):
         return
     
     try:
-        create_team(name, genders, age_min_int, age_max_int, user_id)
+        create_team(name, gender, age_min_int, age_max_int, user_id)
     except Exception as err:
         print("There was an error:")
         print(err)
@@ -140,7 +139,7 @@ def do_create_team_command(user_id):
     
     print("Team created successfully.")
 
-def do_add_player(user_id):
+def do_add_player_command(user_id):
     # Add team player
     team_id = team_selection(user_id)
     if not team_id:
@@ -160,7 +159,8 @@ def do_add_player(user_id):
     if not allowed_genders == "co-ed" and not allowed_genders == gender:
         print("Gender ineligible for team.")
         return
-
+    
+    print(f"You selected gender: {gender}")
 
     age = input("Enter player age: ")
 
@@ -187,7 +187,7 @@ def do_add_player(user_id):
     
     print("Player created successfully.")
 
-def do_delete_player(user_id):
+def do_delete_player_command(user_id):
     team_id = team_selection(user_id)
     if not team_id:
         print("You don't have any teams.")
@@ -200,16 +200,15 @@ def do_delete_player(user_id):
     # Check if deletion of player was succesful.
     try:
         delete_player(player_id)
-        print("\nDeletion successful.")
     except Exception as err:
         print("There was an error:")
         print(err)
 
+    print("Player deleted successfully.")
 
 def do_input_score_command(user_id):
     tournament_id = grab_tournament_id(user_id)
 
-    # Same as above but for games
     games = get_games_by_tournament(tournament_id)
     if not games:
         print("No games in tournament.")
@@ -227,7 +226,6 @@ def do_input_score_command(user_id):
     print(f"You selected game: {game_key}")
     game_id = game_options_dict[game_key]
 
-    # Basically same as run_app.py
     home_team_score = input("Enter home team score: ")
     try:
         home_team_score_int = int(home_team_score)
@@ -250,7 +248,7 @@ def do_input_score_command(user_id):
         return
     print("Score created successfully.")
 
-def do_register_tournament(user_id):
+def do_register_tournament_command(user_id):
     team_id = team_selection(user_id)
     if not team_id:
         print("You don't have any teams.")
@@ -274,7 +272,8 @@ def do_register_tournament(user_id):
         
     # Check if all team members meet gender and age requirments
     if not check_team_eligibility(team_id, tournament_id):
-        print("Someone on your team isn't eligible for tournament or your team is empty.")
+        print("Someone on your team isn't eligible for tournament "
+              + "or your team is empty.")
         return
 
     # Check if registration was succesful.
@@ -285,19 +284,19 @@ def do_register_tournament(user_id):
         print("There was an error:")
         print(err)
         return
-    print("\nRegistration successful.")
+    
+    print("Registration successful.")
 
 def do_create_game_command(user_id):
     tournament_id = grab_tournament_id(user_id)
     teams = get_all_teams()
     t = get_tournament_by_id(tournament_id)
-    start = datetime.strptime(t['start_date'], "%Y-%m-%d %H:%M:%S.%f")
-    end = datetime.strptime(t['end_date'], "%Y-%m-%d %H:%M:%S.%f")
-    start = start.date()
-    end = end.date()
+    start = datetime.strptime(t['start_date'], "%Y-%m-%d %H:%M:%S")
+    end = datetime.strptime(t['end_date'], "%Y-%m-%d %H:%M:%S")
+    # start = start.datetime()
+    # end = end.datetime()
 
     # Create game
-    team_options = list(teams.values())
     team_ids = []
     team_names = []
     for team in teams.values():
@@ -307,109 +306,120 @@ def do_create_game_command(user_id):
     team_menu = TerminalMenu(team_names, title="Select home team: ")
     menu_entry_index = team_menu.show()
     home_team_id = team_ids[menu_entry_index]
+    print(f"You selected home team: {team_names[menu_entry_index]}")
     team_menu = TerminalMenu(team_names, title="Select away team: ")
     menu_entry_index = team_menu.show()
     away_team_id = team_ids[menu_entry_index]
+    print(f"You selected away team: {team_names[menu_entry_index]}")
 
     print(f"\nYour selected tournament start date: {start}")
     print(f"Your selected tournament end date: {end}\n")
 
-    time = create_date(start="START", typ="game")
+    time = create_date(start="start", typ="game")
     location = input("Enter field location of the game: ")
     try:
-        time = datetime.strptime(time, 
-            "%B-%d-%Y %H:%M")
-        assert(start <= time.date() <= end)
+        time = datetime.strptime(time, "%B-%d-%Y %H:%M")
+        assert(start <= time <= end)
     except Exception as err:
         print("There was an error")
         print(err)
         return
     try:
         create_game(time, tournament_id, location, home_team_id, away_team_id)
-        print("\nGame successfully created.")
     except Exception as err:
         print("There was an error")
         print(err)
         return
-
+    
+    print("Game created successfully.")
 
 def do_create_tournament_command(user_id):
     # Create a tournament
     name = input("Enter tournament name: ")
-    gender_options = ["m", "f", "co-ed"]
 
-    terminal_menu = TerminalMenu(gender_options, title="Select eligible genders: ")
-    menu_entry_index = terminal_menu.show()
-    gender = gender_options[menu_entry_index]
+    terminal_menu = TerminalMenu(
+        ["M", "F"],
+        multi_select=True,
+        show_multi_select_hint=True,
+    )
+    terminal_menu.show()
+    input_genders = terminal_menu.chosen_menu_entries
+    if len(input_genders) == 2:
+        gender = "co-ed"
+    else:
+        gender = input_genders[0].lower()
     age_min = input("Enter minimum eligible age: ")
     try:
         age_min = int(age_min)
     except:
-        command = input(AGE_INT_ERROR)
+        print(AGE_INT_ERROR)
         return
     age_max = input("Enter maximum eligible age: ")
     try:
         age_max = int(age_max)
     except:
-        command = input(AGE_INT_ERROR)
+        print(AGE_INT_ERROR)
         return
     # Check date formats
-    # start_date = input("Enter tournament start date in the format 'MM-DD-YYYY HH:MM': ")
-    start_date = create_date(start="START", typ="tournament")
+    start_date = create_date(start="start", typ="tournament")
     try: 
         start_date = datetime.strptime(start_date, 
             "%B-%d-%Y %H:%M")
         print(f"Your entered tournament start date: {start_date}")
     except:
-        command = input(DATE_ERROR)
+        print(DATE_ERROR)
         return
-    end_date = create_date(start="END", typ="tournament")
+    end_date = create_date(start="end", typ="tournament")
     try:
         end_date = datetime.strptime(end_date, 
             "%B-%d-%Y %H:%M")
         print(f"Your entered tournament end date: {start_date}")
     except:
-        command = input(DATE_ERROR)
+        print(DATE_ERROR)
         return
     location = input("Enter tournament location in the format 'city, state': ")
-    # Check creation of tournament was succesful.
-    # If so, break loop.
+    # Check creation of tournament was succesful
     try:
         create_tournament(name, gender, age_min,
             age_max, start_date, end_date, user_id, location)
-        print("\nTournament successfully created.")
     except Exception as err:
         print("There was an error")
         print(err)
         return
+    
+    print("Tournament created successfully.")
 
-def do_update_tournament_location(user_id):
+def do_update_tournament_location_command(user_id):
     tournament_id = grab_tournament_id(user_id)
-    location = input("Enter updated tournament location in the format 'city, state': ")
+    location = input("Enter updated tournament location in the format "
+                     + "'city, state': ")
     try: 
         update_tournament_location(tournament_id, location)
-        print("\nTournament location successfully updated.")
     except Exception as err:
         print("There was an error")
         print(err)
         return
+    
+    print("Tournament location updated successfully.")
 
-def do_close_registration(user_id):
+def do_close_registration_command(user_id):
     # Close registration
     tournament_id = grab_tournament_id(user_id)
 
     try:
         close_reg(tournament_id)
-        print("\nRegistration closed.")
     except Exception as err:
         print("There was an error")
         print(err)
         return
+    
+    print("Registration closed.")
 
-def do_show_tournament_status(user_id):
+def do_show_tournament_status_command():
     tournament_id = tournament_selection_from_all()
 
     print_tournament_games(tournament_id)
+
 
 ###############################################################################
 # COMMAND CONTROL FLOW FUNCTIONS
@@ -420,27 +430,22 @@ def do_view_command(command):
         print_all_teams()
     elif command == VIEW_ALL_TOURNAMENTS:
         print_all_tournaments()
+    elif command == VIEW_TOURNAMENT_STATUS:
+        do_show_tournament_status_command()
 
 def do_tournament_manager_command(command, user_id):
     if command in VIEW_OPTIONS:
         do_view_command(command)
     elif command == CREATE_TOURNAMENT:
         do_create_tournament_command(user_id)
-        return
     elif command == CREATE_GAME:
         do_create_game_command(user_id)
-        return
     elif command == INPUT_SCORE:
         do_input_score_command(user_id)
     elif command == UPDATE_TOURNAMENT_LOCATION:
-        do_update_tournament_location(user_id)
-        return
+        do_update_tournament_location_command(user_id)
     elif command == CLOSE_REGISTRATION:
-        do_close_registration(user_id)
-        return
-    elif command == SHOW_TOURNAMENT_STATUS:
-        do_show_tournament_status(user_id)
-        return
+        do_close_registration_command(user_id)
 
 def do_team_manager_command(command, user_id):
     if command in VIEW_OPTIONS:
@@ -448,31 +453,34 @@ def do_team_manager_command(command, user_id):
     elif command == CREATE_TEAM:
         do_create_team_command(user_id)
     elif command == ADD_PLAYER:
-        do_add_player(user_id)
+        do_add_player_command(user_id)
     elif command == DELETE_PLAYER:
-        do_delete_player(user_id)
+        do_delete_player_command(user_id)
     elif command == REGISTER_FOR_TOURNAMENT:
-        do_register_tournament(user_id)
+        do_register_tournament_command(user_id)
 
 def do_other_command(command):
     if command in VIEW_OPTIONS:
         do_view_command(command)
 
+
 ###############################################################################
 # HELPER FUNCTIONS
 ###############################################################################
-
 
 def create_date(start, typ):
     month_options = ["January", "February", "March", "April", "May",
     "June", "July", "August", "September", "November", "December"]
 
     year = input(f"Enter {typ} {start} year: ")
-    month_menu = TerminalMenu(month_options, title=f"Select {typ} {start} month: ")
+    month_menu = TerminalMenu(month_options, title=f"Select {typ} {start} "
+                              + "month: ")
     menu_entry_index = month_menu.show()
+    month = month_options[menu_entry_index]
+    print(f"You selected month: {month}")
     day = input(f"Enter {typ} {start} day in the format 'DD': ")
     time = input(f"Enter {typ} {start} time in the format 'HH:MM': ")
-    return f"{month_options[menu_entry_index]}-{day}-{year} {time}"
+    return f"{month}-{day}-{year} {time}"
 
 def grab_tournament_id(user_id):
     tournaments = get_tournaments_by_manager(user_id)

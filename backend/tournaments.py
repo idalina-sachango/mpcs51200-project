@@ -15,7 +15,6 @@ MEDIUM_LINE_DELIMITER = "=" * 30
 SHORT_LINE_DELIMITER = "-" * 20
 
 def print_tournaments(tournaments: dict):
-    print("*** VIEWING TOURNAMENTS ***")
     for tournament in tournaments.values():
         print(LONG_LINE_DELIMITER)
         print(f"Tournament ID: {tournament['tournament_id']}")
@@ -37,7 +36,6 @@ def print_tournaments(tournaments: dict):
         print(LONG_LINE_DELIMITER)
 
 def print_games(games: dict):
-    print("*** VIEWING GAMES ***")
     for game in games.values():
         print(LONG_LINE_DELIMITER)
         print(f"Game ID: {game['game_id']}")
@@ -68,7 +66,6 @@ def print_games(games: dict):
         print(LONG_LINE_DELIMITER)
         
 def print_teams(teams: dict):
-    print("*** VIEWING TEAMS ***")
     for team in teams.values():
         print(LONG_LINE_DELIMITER)
         print_team(team)
@@ -87,30 +84,34 @@ def print_team(team: dict):
     print_roster(team["roster"])
 
 def print_all_teams():
+    print("*** VIEWING TEAMS ***")
     teams = get_all_teams()
     if not teams:
-        print("\nNo teams currently.")
+        print("No teams currently.")
 
     print_teams(teams)
 
 def print_all_tournaments():
+    print("*** VIEWING TOURNAMENTS ***")
     tournaments = get_all_tournaments()
     if not tournaments:
-        print("\nNo tournaments currently.")
+        print("No tournaments currently.")
 
     print_tournaments(tournaments)
 
 def print_manager_tournaments(manager_id: int):
+    print("*** VIEWING TOURNAMENTS ***")
     tournaments = get_tournaments_by_manager(manager_id)
     if not tournaments:
-        print("\nNo tournaments currently.")
+        print("No tournaments currently.")
 
     print_tournaments(tournaments)
 
 def print_tournament_games(tournament_id: int):
+    print("*** VIEWING GAMES ***")
     games = get_games_by_tournament(tournament_id)
     if not games:
-        print("\nNo games currently.")
+        print("No games currently.")
 
     print_games(games)
 
